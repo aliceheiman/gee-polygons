@@ -5,10 +5,10 @@
 # %% auto #0
 __all__ = ['DEFREG_CLASS_MAP', 'DEFREG_PALETTE', 'MAPBIOMAS_DEFREG', 'LULC_CLASS_MAP', 'LULC_PALETTE', 'MAPBIOMAS_LULC']
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #67aa0b78
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #65083671
 from ..layers import CategoricalLayer
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #dfd5e1e4
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #cb4083b0
 # Class definitions for deforestation/regeneration product
 DEFREG_CLASS_MAP = {
     0: 'Other',
@@ -32,76 +32,108 @@ DEFREG_PALETTE = {
     7: '#212121'   # Not Applied - dark gray
 }
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #a772514d
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #3c9987e2
 MAPBIOMAS_DEFREG = CategoricalLayer(
     asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_deforestation_secondary_vegetation_v2',
+    temporal_mode='band',
     band_pattern='classification_{}',
     scale=30,
     class_map=DEFREG_CLASS_MAP,
     palette=DEFREG_PALETTE
 )
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #e30f60f3
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #e22e1506
 # Simplified class map for main LULC categories
-# Full legend: https://mapbiomas.org/en/legend-codes
+# Full legend: https://brasil.mapbiomas.org/en/codigos-de-legenda/
+
+# https://brasil.mapbiomas.org/wp-content/uploads/sites/4/2025/08/Legenda-Colecao-10-Legend-Code.pdf
 LULC_CLASS_MAP = {
-    0: 'No Data',
-    1: 'Forest',
-    3: 'Forest Formation',
-    4: 'Savanna Formation',
-    5: 'Mangrove',
-    6: 'Floodable Forest',
-    9: 'Forest Plantation',
-    10: 'Non Forest Natural Formation',
-    11: 'Wetland',
-    12: 'Grassland',
-    13: 'Other Non Forest Formation',
-    14: 'Farming',
-    15: 'Pasture',
-    18: 'Agriculture',
-    19: 'Temporary Crops',
-    20: 'Sugar Cane',
-    21: 'Mosaic of Agriculture and Pasture',
-    22: 'Non Vegetated Area',
-    23: 'Beach and Dune',
-    24: 'Urban Infrastructure',
-    25: 'Other Non Vegetated Area',
-    26: 'Water',
-    27: 'Non Observed',
-    29: 'Rocky Outcrop',
-    30: 'Mining',
-    31: 'Aquaculture',
-    32: 'Salt Flat',
-    33: 'River, Lake and Ocean',
-    36: 'Perennial Crops',
-    39: 'Soy Beans',
-    40: 'Rice',
-    41: 'Other Temporary Crops',
-    46: 'Coffee',
-    47: 'Citrus',
-    48: 'Other Perennial Crops',
-    49: 'Wooded Restinga',
-    50: 'Herbaceous Restinga',
-    62: 'Cotton',
-    63: 'Soy and Other Crops'
+    1: "Forest",
+    3: "Forest Formation",
+    4: "Savanna Formation",
+    5: "Mangrove",
+    6: "Floodable Forest",
+    9: "Forest Plantation",
+    10: "Herbaceous and Shrubby Vegetation",
+    11: "Wetland",
+    12: "Grassland",
+    14: "Farming",
+    15: "Pasture",
+    18: "Agriculture",
+    19: "Temporary Crop",
+    20: "Sugar Cane",
+    21: "Mosaic of Uses",
+    22: "Non Vegetated Area",
+    23: "Beach, Dune and Sand Spot",
+    24: "Urban Area",
+    25: "Other Non Vegetated Areas",
+    26: "Water",
+    27: "Not Observed",
+    29: "Rocky Outcrop",
+    30: "Mining",
+    31: "Aquaculture",
+    32: "Hypersaline Tidal Flat",
+    33: "River, Lake and Ocean",
+    35: "Palm Oil",
+    36: "Perennial Crop",
+    39: "Soybean",
+    40: "Rice",
+    41: "Other Temporary Crops",
+    46: "Coffee",
+    47: "Citrus",
+    48: "Other Perennial Crops",
+    49: "Wooded Sandbank Vegetation",
+    50: "Herbaceous Sandbank Vegetation",
+    62: "Cotton",
+    75: "Photovoltaic Power Plant"
 }
 
-# Simplified palette (main categories)
 LULC_PALETTE = {
-    3: '#1f8d49',   # Forest Formation - green
-    4: '#7dc975',   # Savanna - light green
-    12: '#d6bc74',  # Grassland - tan
-    15: '#edde8e',  # Pasture - yellow
-    18: '#E974ED',  # Agriculture - pink
-    21: '#FFEFC3',  # Mosaic Ag/Pasture - cream
-    24: '#d4271e',  # Urban - red
-    26: '#2532e4',  # Water - blue
-    33: '#2532e4',  # River/Lake/Ocean - blue
+    1:  "#1f8d49",  # Forest
+    3:  "#1f8d49",  # Forest Formation
+    4:  "#7dc975",  # Savanna Formation
+    5:  "#04381d",  # Mangrove
+    6:  "#007785",  # Floodable Forest
+    9:  "#7a5900",  # Forest Plantation
+    10: "#d6bc74",  # Herbaceous and Shrubby Vegetation
+    11: "#519799",  # Wetland
+    12: "#d6bc74",  # Grassland
+    14: "#ffefc3",  # Farming
+    15: "#edde8e",  # Pasture
+    18: "#E974ED",  # Agriculture
+    19: "#C27BA0",  # Temporary Crop
+    20: "#db7093",  # Sugar Cane
+    21: "#ffefc3",  # Mosaic of Uses
+    22: "#d4271e",  # Non Vegetated Area
+    23: "#ffa07a",  # Beach, Dune and Sand Spot
+    24: "#d4271e",  # Urban Area
+    25: "#db4d4f",  # Other Non Vegetated Areas
+    26: "#2532e4",  # Water
+    27: "#ffffff",  # Not Observed
+    29: "#ffaa5f",  # Rocky Outcrop
+    30: "#9c0027",  # Mining
+    31: "#091077",  # Aquaculture
+    32: "#fc8114",  # Hypersaline Tidal Flat
+    33: "#2532e4",  # River, Lake and Ocean
+    35: "#9065d0",  # Palm Oil
+    36: "#d082de",  # Perennial Crop
+    39: "#f5b3c8",  # Soybean
+    40: "#c71585",  # Rice
+    41: "#f54ca9",  # Other Temporary Crops
+    46: "#d68fe2",  # Coffee
+    47: "#9932cc",  # Citrus
+    48: "#e6ccff",  # Other Perennial Crops
+    49: "#02d659",  # Wooded Sandbank Vegetation
+    50: "#ad5100",  # Herbaceous Sandbank Vegetation
+    62: "#ff69b4",  # Cotton
+    75: "#c12100",  # Photovoltaic Power Plant
 }
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #b3f21190
+
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #1795018d
 MAPBIOMAS_LULC = CategoricalLayer(
-    asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection9/mapbiomas_collection90_integration_v1',
+    asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_coverage_v2',
+    temporal_mode='band',
     band_pattern='classification_{}',
     scale=30,
     class_map=LULC_CLASS_MAP,
