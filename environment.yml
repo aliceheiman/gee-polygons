@@ -1,0 +1,14 @@
+name: gee-polygons
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - geemap
+  - earthengine-api
+  - pyproj
+  - pandas
+  - numpy
+  - jupyterlab
+  - pip
+  - pip:
+      - nbdev
