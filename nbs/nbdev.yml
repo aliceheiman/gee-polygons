@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "gee-polygons"
+  site-url: "https://aliceheiman.github.io/gee-polygons"
+  description: "A polygon-first Google Earth Engine library for extracting features, tracking changes over time, and preparing data for modeling or analysis."
+  repo-branch: main
+  repo-url: "https://github.com/aliceheiman/gee-polygons"
