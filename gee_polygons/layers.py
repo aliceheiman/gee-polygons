@@ -5,11 +5,11 @@
 # %% auto #0
 __all__ = ['CategoricalLayer', 'ContinuousLayer']
 
-# %% ../nbs/00_layers.ipynb #d323119f
+# %% ../nbs/00_layers.ipynb #ccabd210
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Literal, List, Callable, Any
 
-# %% ../nbs/00_layers.ipynb #db3766ad
+# %% ../nbs/00_layers.ipynb #627c1b34
 @dataclass
 class CategoricalLayer:
     """A descriptor for a categorical raster layer.
@@ -60,7 +60,7 @@ class CategoricalLayer:
             return None
         return self.palette.get(class_value)
 
-# %% ../nbs/00_layers.ipynb #e20708d8
+# %% ../nbs/00_layers.ipynb #e2cefef5
 @dataclass
 class ContinuousLayer:
     """A descriptor for a continuous raster time series.

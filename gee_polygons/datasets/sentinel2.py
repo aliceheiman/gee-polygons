@@ -5,24 +5,31 @@
 # %% auto #0
 __all__ = ['SENTINEL2_NDVI_EVI', 'add_indices', 'mask_s2_clouds', 'get_s2_collection']
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #26fc725d
+# %% ../../nbs/12_datasets_sentinel2.ipynb #86731b6a
 import ee
 from ..layers import ContinuousLayer
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #d5afe611
+# %% ../../nbs/12_datasets_sentinel2.ipynb #0464bc48
 def add_indices(image):
-    """Add NDVI and EVI bands to a Sentinel-2 image."""
-    ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI')
-    
-    evi = image.expression(
+    """Add NDVI and EVI bands to a Sentinel-2 image.
+
+    Note: Expects raw Sentinel-2 SR reflectance (scaled by 10000).
+    Scales to 0-1 range before computing indices.
+    """
+    # Scale reflectance from 0-10000 to 0-1 range
+    scaled = image.divide(10000)
+
+    ndvi = scaled.normalizedDifference(['B8', 'B4']).rename('NDVI')
+
+    evi = scaled.expression(
         '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))',
         {
-            'NIR': image.select('B8'),
-            'RED': image.select('B4'),
-            'BLUE': image.select('B2')
+            'NIR': scaled.select('B8'),
+            'RED': scaled.select('B4'),
+            'BLUE': scaled.select('B2')
         }
     ).rename('EVI')
-    
+
     return image.addBands([ndvi, evi])
 
 
@@ -39,7 +46,7 @@ def mask_s2_clouds(image):
     
     return image.updateMask(mask)
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #70f5ab06
+# %% ../../nbs/12_datasets_sentinel2.ipynb #d3eee146
 def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: int = 20):
     """Get a processed Sentinel-2 collection with NDVI and EVI.
     
@@ -57,8 +64,7 @@ def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: 
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', cloud_pct))
         .map(mask_s2_clouds)
-        .map(lambda img: img.divide(10000))  # Scale to 0-1
-        .map(add_indices)
+        .map(add_indices)  # Scaling happens inside add_indices
     )
     
     if geometry is not None:
@@ -66,7 +72,7 @@ def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: 
     
     return collection
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #9da59b28
+# %% ../../nbs/12_datasets_sentinel2.ipynb #713a4d42
 # These presets work with the raw Sentinel-2 collection
 # The extract_continuous function should handle index computation
 
