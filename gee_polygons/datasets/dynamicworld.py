@@ -5,10 +5,10 @@
 # %% auto #0
 __all__ = ['DYNAMIC_WORLD_CLASS_MAP', 'DYNAMIC_WORLD_PALETTE', 'DYNAMIC_WORLD']
 
-# %% ../../nbs/11_datasets_dynamicworld.ipynb #dfacf22e
+# %% ../../nbs/11_datasets_dynamicworld.ipynb #fa291be8
 from ..layers import CategoricalLayer
 
-# %% ../../nbs/11_datasets_dynamicworld.ipynb #334e269a
+# %% ../../nbs/11_datasets_dynamicworld.ipynb #cbfcd753
 DYNAMIC_WORLD_CLASS_MAP = {
     0: 'Water',
     1: 'Trees',
@@ -33,7 +33,7 @@ DYNAMIC_WORLD_PALETTE = {
     8: '#B39FE1'   # Snow & Ice - light purple
 }
 
-# %% ../../nbs/11_datasets_dynamicworld.ipynb #243cc2cb
+# %% ../../nbs/11_datasets_dynamicworld.ipynb #7d6440e6
 DYNAMIC_WORLD = CategoricalLayer(
     asset_id='GOOGLE/DYNAMICWORLD/V1',
     temporal_mode='collection',
