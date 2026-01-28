@@ -441,6 +441,8 @@ def plot_aggregated(
     colors: Optional[dict[str, str]] = None,
     layer: Optional['CategoricalLayer'] = None,
     show_components: bool = True,
+    vlines: Optional[dict[int, str]] = None,
+    vline_color: str = '#666666',
     figsize: tuple[int, int] = (12, 6),
     linewidth: float = 2,
     marker: str = 'o',
@@ -459,6 +461,9 @@ def plot_aggregated(
         colors: Optional dict mapping class/aggregate names to hex colors
         layer: Optional CategoricalLayer to extract colors from palette
         show_components: If True, show component classes as dashed lines
+        vlines: Optional dict mapping years to labels for vertical reference lines.
+               Example: {2012: 'Restoration Start'}
+        vline_color: Color for vertical lines (default gray)
         figsize: Figure size (width, height)
         linewidth: Width of lines
         marker: Marker style
@@ -514,6 +519,14 @@ def plot_aggregated(
                         linestyle=':'
                     )
     
+    # Add vertical reference lines
+    if vlines:
+        for year, label in vlines.items():
+            ax.axvline(x=year, color=vline_color, linestyle='--', linewidth=1.5, alpha=0.7)
+            # Add label at top of chart
+            ax.text(year, 98, f' {label}', fontsize=9, color=vline_color,
+                   ha='left', va='top', rotation=0)
+    
     ax.set_title(title, fontsize=14, fontweight='bold')
     ax.set_xlabel('Year', fontsize=12)
     ax.set_ylabel('Percentage (%)', fontsize=12)
@@ -537,6 +550,8 @@ def plot_aggregated_interactive(
     colors: Optional[dict[str, str]] = None,
     layer: Optional['CategoricalLayer'] = None,
     show_components: bool = True,
+    vlines: Optional[dict[int, str]] = None,
+    vline_color: str = '#666666',
     height: int = 500,
     width: Optional[int] = None,
     line_width: float = 2,
@@ -551,6 +566,9 @@ def plot_aggregated_interactive(
         colors: Optional dict mapping class/aggregate names to hex colors
         layer: Optional CategoricalLayer to extract colors from palette
         show_components: If True, show component classes as dashed lines
+        vlines: Optional dict mapping years to labels for vertical reference lines.
+               Example: {2012: 'Restoration Start'}
+        vline_color: Color for vertical lines (default gray)
         height: Chart height in pixels
         width: Chart width in pixels (None for auto)
         line_width: Width of lines
@@ -603,6 +621,24 @@ def plot_aggregated_interactive(
                         marker=dict(size=marker_size * 0.8),
                         hovertemplate=f'{comp}<br>Year: %{{x}}<br>Percentage: %{{y:.1f}}%<extra></extra>'
                     ))
+    
+    # Add vertical reference lines
+    if vlines:
+        for year, label in vlines.items():
+            fig.add_vline(
+                x=year,
+                line=dict(color=vline_color, width=1.5, dash='dash'),
+                opacity=0.7
+            )
+            fig.add_annotation(
+                x=year,
+                y=98,
+                text=label,
+                showarrow=False,
+                font=dict(size=10, color=vline_color),
+                xanchor='left',
+                yanchor='top'
+            )
     
     fig.update_layout(
         title=dict(text=title, font=dict(size=16)),

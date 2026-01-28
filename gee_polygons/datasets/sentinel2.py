@@ -5,11 +5,11 @@
 # %% auto #0
 __all__ = ['SENTINEL2_NDVI_EVI', 'add_indices', 'mask_s2_clouds', 'get_s2_collection']
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #90d843f3
+# %% ../../nbs/12_datasets_sentinel2.ipynb #ed033fcd
 import ee
 from ..layers import ContinuousLayer
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #9405b3dd
+# %% ../../nbs/12_datasets_sentinel2.ipynb #c9a29c9b
 def add_indices(image):
     """Add NDVI and EVI bands to a Sentinel-2 image.
 
@@ -46,7 +46,7 @@ def mask_s2_clouds(image):
     
     return image.updateMask(mask)
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #c331b0f0
+# %% ../../nbs/12_datasets_sentinel2.ipynb #126ab4d6
 def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: int = 20):
     """Get a processed Sentinel-2 collection with NDVI and EVI.
     
@@ -72,7 +72,7 @@ def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: 
     
     return collection
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #013e159f
+# %% ../../nbs/12_datasets_sentinel2.ipynb #62ca7b9f
 # These presets work with the raw Sentinel-2 collection
 # The extract_continuous function should handle index computation
 
