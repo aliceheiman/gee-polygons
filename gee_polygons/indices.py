@@ -5,7 +5,7 @@
 # %% auto #0
 __all__ = []
 
-# %% ../nbs/03_indices.ipynb #3a44aa91
+# %% ../nbs/03_indices.ipynb #f1e4ba47
 import ee
 import pandas as pd
 from fastcore.basics import patch
@@ -14,7 +14,7 @@ from typing import Literal
 from .layers import ContinuousLayer
 from .site import Site
 
-# %% ../nbs/03_indices.ipynb #76cdffc0
+# %% ../nbs/03_indices.ipynb #7d6528d0
 @patch
 def extract_continuous(
     self: Site,
@@ -54,7 +54,7 @@ def extract_continuous(
     else:
         raise ValueError(f"Unknown frequency: {frequency}")
 
-# %% ../nbs/03_indices.ipynb #0f69f899
+# %% ../nbs/03_indices.ipynb #5d8de926
 def _prepare_collection(layer, start_date, end_date, geometry, cloud_pct):
     """Prepare an ImageCollection with preprocessing based on the layer type."""
     
@@ -110,7 +110,7 @@ def _add_s2_indices(image):
     
     return image.addBands([ndvi, evi])
 
-# %% ../nbs/03_indices.ipynb #2fbc4e3e
+# %% ../nbs/03_indices.ipynb #669a2b17
 def _extract_all_images(site, collection, layer, reducer_fn, max_pixels):
     """Extract one value per image in the collection."""
     
@@ -140,7 +140,7 @@ def _extract_all_images(site, collection, layer, reducer_fn, max_pixels):
     
     return pd.DataFrame(rows)
 
-# %% ../nbs/03_indices.ipynb #03fc2fb0
+# %% ../nbs/03_indices.ipynb #886e1498
 def _extract_yearly(site, collection, layer, reducer_fn, start_date, end_date, max_pixels):
     """Aggregate by year."""
     start_year = int(start_date[:4])
@@ -178,7 +178,7 @@ def _extract_yearly(site, collection, layer, reducer_fn, start_date, end_date, m
     
     return pd.DataFrame(rows)
 
-# %% ../nbs/03_indices.ipynb #0d01eb9e
+# %% ../nbs/03_indices.ipynb #7133df8b
 def _extract_monthly(site, collection, layer, reducer_fn, start_date, end_date, max_pixels):
     """Aggregate by month."""
     import datetime
