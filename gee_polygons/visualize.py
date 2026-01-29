@@ -11,13 +11,12 @@ __all__ = ['NDVI_VIS', 'EVI_VIS', 'VisParams', 'render_thumbnail', 'add_label', 
 import ee
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
-from typing import Optional, Union, Literal, Callable, TYPE_CHECKING
+from typing import Optional, Union, Literal, Callable
 from dataclasses import dataclass
 import io
 
-if TYPE_CHECKING:
-    from gee_polygons.layers import CategoricalLayer, ContinuousLayer
-    from gee_polygons.site import Site
+from .layers import CategoricalLayer, ContinuousLayer
+from .site import Site
 
 # %% ../nbs/04_visualize.ipynb #cell-5
 @dataclass

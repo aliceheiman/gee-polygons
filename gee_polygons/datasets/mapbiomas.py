@@ -5,10 +5,10 @@
 # %% auto #0
 __all__ = ['DEFREG_CLASS_MAP', 'DEFREG_PALETTE', 'MAPBIOMAS_DEFREG', 'LULC_CLASS_MAP', 'LULC_PALETTE', 'MAPBIOMAS_LULC']
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #fd6ce37b
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #2255906c
 from ..layers import CategoricalLayer
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #9118982a
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #4babc2e8
 # Class definitions for deforestation/regeneration product
 DEFREG_CLASS_MAP = {
     0: 'Other',
@@ -32,7 +32,7 @@ DEFREG_PALETTE = {
     7: '#212121'   # Not Applied - dark gray
 }
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #f9bba5fb
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #559fd657
 MAPBIOMAS_DEFREG = CategoricalLayer(
     asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_deforestation_secondary_vegetation_v2',
     temporal_mode='band',
@@ -42,7 +42,7 @@ MAPBIOMAS_DEFREG = CategoricalLayer(
     palette=DEFREG_PALETTE
 )
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #9bfdb588
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #2eb132b2
 # Simplified class map for main LULC categories
 # Full legend: https://brasil.mapbiomas.org/en/codigos-de-legenda/
 
@@ -130,7 +130,7 @@ LULC_PALETTE = {
 }
 
 
-# %% ../../nbs/10_datasets_mapbiomas.ipynb #28d92190
+# %% ../../nbs/10_datasets_mapbiomas.ipynb #eb153bbc
 MAPBIOMAS_LULC = CategoricalLayer(
     asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_coverage_v2',
     temporal_mode='band',

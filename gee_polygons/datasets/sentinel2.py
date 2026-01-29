@@ -6,11 +6,11 @@
 __all__ = ['SENTINEL2_NDVI_EVI', 'BANDS_TRUE_COLOR', 'BANDS_FALSE_COLOR', 'BANDS_AGRICULTURE', 'SENTINEL_VIS',
            'SENTINEL_VIS_BRIGHT', 'add_indices', 'mask_s2_clouds', 'get_s2_collection', 'get_sentinel_composite']
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #9e0567cf
+# %% ../../nbs/12_datasets_sentinel2.ipynb #3b357abc
 import ee
 from ..layers import ContinuousLayer
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #6d24b7bb
+# %% ../../nbs/12_datasets_sentinel2.ipynb #72587a4a
 def add_indices(image):
     """Add NDVI and EVI bands to a Sentinel-2 image.
 
@@ -47,7 +47,7 @@ def mask_s2_clouds(image):
     
     return image.updateMask(mask)
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #f6191f9e
+# %% ../../nbs/12_datasets_sentinel2.ipynb #07383dda
 def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: int = 20):
     """Get a processed Sentinel-2 collection with NDVI and EVI.
     
@@ -73,7 +73,7 @@ def get_s2_collection(start_date: str, end_date: str, geometry=None, cloud_pct: 
     
     return collection
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #f1e60c11
+# %% ../../nbs/12_datasets_sentinel2.ipynb #2fb56822
 # These presets work with the raw Sentinel-2 collection
 # The extract_continuous function should handle index computation
 
@@ -84,7 +84,7 @@ SENTINEL2_NDVI_EVI = ContinuousLayer(
     preprocess=add_indices
 )
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #6f162d67
+# %% ../../nbs/12_datasets_sentinel2.ipynb #c82cff7e
 from typing import Optional, Literal
 
 # Band combinations
@@ -96,7 +96,7 @@ BANDS_AGRICULTURE = ['B11', 'B8', 'B2']     # SWIR, NIR, Blue
 SENTINEL_VIS = {'min': 0, 'max': 0.3, 'gamma': 1.4}
 SENTINEL_VIS_BRIGHT = {'min': 0, 'max': 0.25, 'gamma': 1.6}
 
-# %% ../../nbs/12_datasets_sentinel2.ipynb #ac2ec7a3
+# %% ../../nbs/12_datasets_sentinel2.ipynb #2409ece0
 def get_sentinel_composite(
     geometry: ee.Geometry,
     date_range: tuple[str, str],

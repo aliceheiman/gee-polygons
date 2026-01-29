@@ -11,10 +11,8 @@ __all__ = ['DEFAULT_PALETTE', 'prepare_chart_data', 'get_class_colors', 'plot_cl
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
-from typing import Optional, Union, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from gee_polygons.layers import CategoricalLayer
+from typing import Optional, Union
+from .layers import CategoricalLayer
 
 # %% ../nbs/03_charts.ipynb #cell-5
 # Default color palette for categorical data (colorblind-friendly)
