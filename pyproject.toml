@@ -1,11 +1,31 @@
 [build-system]
-requires = ["setuptools>=64.0"]
+requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name="gee-polygons"
-requires-python=">=3.9"
-dynamic = [ "keywords", "description", "version", "dependencies", "optional-dependencies", "readme", "license", "authors", "classifiers", "entry-points", "scripts", "urls"]
+name = "gee-polygons"
+dynamic = ["version"]
+description = "A polygon-first Google Earth Engine library for extracting features, tracking changes over time, and preparing data for modeling or analysis."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [{name = "aliceheiman", email = "aheiman@stanford.edu"}]
+keywords = ['nbdev', 'jupyter', 'notebook', 'python']
+classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
+dependencies = ['geemap', 'pyproj', 'fastcore', 'pandas']
 
-[tool.uv]
-cache-keys = [{ file = "pyproject.toml" }, { file = "settings.ini" }, { file = "setup.py" }]
+[project.urls]
+Repository = "https://github.com/aliceheiman/gee-polygons"
+Documentation = "https://aliceheiman.github.io/gee-polygons"
+
+[project.entry-points.nbdev]
+gee_polygons = "gee_polygons._modidx:d"
+
+[tool.setuptools.dynamic]
+version = {attr = "gee_polygons.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["gee_polygons"]
+
+[tool.nbdev]
+custom_sidebar = false
