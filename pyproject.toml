@@ -25,7 +25,7 @@ gee_polygons = "gee_polygons._modidx:d"
 version = {attr = "gee_polygons.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["gee_polygons"]
+include = ["gee_polygons*"]
 
 [tool.nbdev]
 custom_sidebar = false
