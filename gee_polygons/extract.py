@@ -5,7 +5,7 @@
 # %% auto #0
 __all__ = []
 
-# %% ../nbs/02_extract.ipynb #39a4da9d
+# %% ../nbs/02_extract.ipynb #0b350657
 import ee
 import geemap
 import pandas as pd
@@ -15,7 +15,7 @@ from typing import Optional, Literal
 from .layers import CategoricalLayer, ContinuousLayer
 from .site import Site
 
-# %% ../nbs/02_extract.ipynb #080d0068
+# %% ../nbs/02_extract.ipynb #c68dd116
 @patch
 def extract_categorical(
     self: Site,
@@ -106,7 +106,7 @@ def extract_categorical(
     
     return pd.DataFrame(rows)
 
-# %% ../nbs/02_extract.ipynb #36376d68
+# %% ../nbs/02_extract.ipynb #2739ecbb
 @patch
 def show_layer(
     self: Site,
@@ -179,7 +179,7 @@ def show_layer(
     
     return m
 
-# %% ../nbs/02_extract.ipynb #dafe2113
+# %% ../nbs/02_extract.ipynb #abbd3331
 @patch
 def extract_continuous(
     self: Site,
@@ -231,7 +231,7 @@ def extract_continuous(
     else:
         raise ValueError(f"Unknown frequency: {frequency}")
 
-# %% ../nbs/02_extract.ipynb #750963c2
+# %% ../nbs/02_extract.ipynb #baccc201
 def _extract_continuous_all(site, collection, layer, reducer_fn, max_pixels):
     """Extract one row per image in the collection."""
     bands = layer.bands
@@ -263,7 +263,7 @@ def _extract_continuous_all(site, collection, layer, reducer_fn, max_pixels):
     
     return pd.DataFrame(rows)
 
-# %% ../nbs/02_extract.ipynb #302f1429
+# %% ../nbs/02_extract.ipynb #0416fcd3
 def _extract_continuous_yearly(site, collection, layer, reducer_fn, start_date, end_date, max_pixels):
     """Aggregate by year: temporal median, then spatial reduce."""
     start_year = int(start_date[:4])
@@ -301,7 +301,7 @@ def _extract_continuous_yearly(site, collection, layer, reducer_fn, start_date, 
     
     return pd.DataFrame(rows)
 
-# %% ../nbs/02_extract.ipynb #43b88f11
+# %% ../nbs/02_extract.ipynb #40cd64d6
 def _extract_continuous_monthly(site, collection, layer, reducer_fn, start_date, end_date, max_pixels):
     """Aggregate by month: temporal median, then spatial reduce."""
     import datetime
