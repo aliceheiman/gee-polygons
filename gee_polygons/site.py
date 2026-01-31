@@ -5,6 +5,7 @@
 # %% ../nbs/01_site.ipynb #0e4bdf5a
 from __future__ import annotations
 import json
+import math
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Union
@@ -12,10 +13,12 @@ from fastcore.basics import patch
 
 import ee
 import geemap
+import geopandas as gpd
+import pandas as pd
 from pyproj import Transformer
 
 # %% auto #0
-__all__ = ['Site', 'load_sites']
+__all__ = ['Site', 'load_sites', 'sites_from_geodataframe']
 
 # %% ../nbs/01_site.ipynb #ec624f45
 class Site:
@@ -140,6 +143,58 @@ class Site:
         ee_feature = ee.Feature(ee_geom, props)
         
         return cls(ee_feature)
+    
+    @classmethod
+    def from_geodataframe_row(cls,
+                              row: pd.Series,
+                              geometry_col: str = 'geometry',
+                              source_crs: Optional[str] = None) -> Site:
+        """Create a Site from a GeoDataFrame row (pd.Series).
+        
+        This enables workflows where you load a GeoJSON into a GeoDataFrame,
+        filter/sort it, and then create Sites from selected rows.
+        
+        Args:
+            row: A row from a GeoDataFrame (pd.Series with geometry)
+            geometry_col: Name of the geometry column (default 'geometry')
+            source_crs: CRS of the geometry. If None, assumes EPSG:4326.
+                       Pass the GeoDataFrame's crs when calling this method.
+            
+        Returns:
+            A Site instance
+            
+        Example:
+            >>> gdf = gpd.read_file('sites.geojson')
+            >>> filtered = gdf[gdf['area_ha'] > 10].sort_values('start_year')
+            >>> sites = [Site.from_geodataframe_row(row, source_crs=str(gdf.crs)) 
+            ...          for _, row in filtered.iterrows()]
+        """
+        # Get geometry and convert to GeoJSON dict
+        geom = row[geometry_col]
+        geom_dict = geom.__geo_interface__
+        
+        # Extract properties (all columns except geometry)
+        props = {}
+        for k, v in row.items():
+            if k == geometry_col:
+                continue
+            # Convert numpy types to Python natives
+            if hasattr(v, 'item'):
+                v = v.item()
+            # Convert NaN to None - Earth Engine doesn't support NaN in JSON
+            if pd.isna(v):
+                v = None
+            props[k] = v
+        
+        # Build feature dict and use existing from_geojson method
+        feature_dict = {
+            'type': 'Feature',
+            'geometry': geom_dict,
+            'properties': props
+        }
+        
+        crs = source_crs or 'EPSG:4326'
+        return cls.from_geojson(feature_dict, source_crs=crs)
 
 # %% ../nbs/01_site.ipynb #7305e020
 def _reproject_geometry(geom: dict, 
@@ -217,6 +272,43 @@ def _detect_crs(geojson_data: dict) -> str:
     
     # Default to WGS84
     return 'EPSG:4326'
+
+# %% ../nbs/01_site.ipynb #nvkcih70u2
+def sites_from_geodataframe(gdf: gpd.GeoDataFrame,
+                            geometry_col: str = 'geometry') -> list[Site]:
+    """Create Sites from a GeoDataFrame.
+    
+    This is the recommended way to work with filtered/sorted site data:
+    1. Load your GeoJSON into a GeoDataFrame
+    2. Filter and sort using pandas/geopandas operations
+    3. Convert to Sites for GEE analysis
+    
+    Args:
+        gdf: A GeoDataFrame with polygon geometries
+        geometry_col: Name of the geometry column (default 'geometry')
+        
+    Returns:
+        List of Site objects
+        
+    Example:
+        >>> gdf = gpd.read_file('sites.geojson')
+        >>> # Filter for large sites that started after 2015
+        >>> filtered = gdf[(gdf['area_ha'] > 10) & (gdf['start_year'] > 2015)]
+        >>> # Sort by area descending
+        >>> filtered = filtered.sort_values('area_ha', ascending=False)
+        >>> # Convert to Sites
+        >>> sites = sites_from_geodataframe(filtered)
+    """
+    # Get CRS from GeoDataFrame
+    if gdf.crs is not None:
+        source_crs = str(gdf.crs)
+    else:
+        source_crs = 'EPSG:4326'
+    
+    return [
+        Site.from_geodataframe_row(row, geometry_col=geometry_col, source_crs=source_crs)
+        for _, row in gdf.iterrows()
+    ]
 
 # %% ../nbs/01_site.ipynb #f90e1ee4
 @patch
