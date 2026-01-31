@@ -37,14 +37,97 @@ can find package manager specific guidelines on
 
 ## How to use
 
-Fill me in please! Don’t forget code examples:
+### Initialize Earth Engine
 
 ``` python
-1+1
+import ee
+ee.Authenticate()
+ee.Initialize(project="your-project-id")
 ```
 
-    2
+### Load sites from GeoJSON
+
+``` python
+from gee_polygons import load_sites, Site
+
+# Load all sites from a GeoJSON file
+sites = load_sites('path/to/sites.geojson')
+print(f"Loaded {len(sites)} sites")
+
+# Explore a single site
+site = sites[0]
+print(f"Site ID: {site.site_id}")
+print(f"Area: {site.area_ha:.2f} ha")
+print(f"Start year: {site.start_year}")
+```
+
+### Load and filter with GeoDataFrame
+
+For large datasets, load into a GeoDataFrame first for fast filtering:
+
+``` python
+import geopandas as gpd
+from gee_polygons import sites_from_geodataframe
+
+# Load into GeoDataFrame
+gdf = gpd.read_file('path/to/sites.geojson')
+
+# Filter and sort using pandas (fast, in-memory)
+filtered = gdf[gdf['area_ha'] > 10].sort_values('start_year')
+
+# Convert only filtered sites to Site objects
+sites = sites_from_geodataframe(filtered)
+```
+
+### Example use of dataset
+
+``` python
+from gee_polygons import SiteCollection
+from gee_polygons.datasets.mapbiomas import MAPBIOMAS_LULC
+
+# Load sites as a collection
+collection = SiteCollection.from_geojson('path/to/sites.geojson')
+
+# Extract categorical land cover data
+result = collection.extract_categorical(
+    layer=MAPBIOMAS_LULC,
+    years=range(2010, 2024)
+)
+
+# Access results as a DataFrame
+df = result.data
+print(f"Extracted {len(df)} records")
+```
 
 ## Roadmap
 
-Planned: - Support Dynamic World (temporal classification aggregation)
+**Planned:** - Verificiation of large-scale export jobs - Integration
+with ML workflows
+
+## Changelog
+
+### v0.0.4
+
+**New Features:** - Added `Site.from_geodataframe_row()` to create a
+Site from a GeoDataFrame row - Added `sites_from_geodataframe()` to
+create Sites from a filtered/sorted GeoDataFrame - Enables workflow:
+load GeoJSON -\> GeoDataFrame -\> filter/sort -\> Sites
+
+**Improvements:** - NaN values in GeoDataFrame properties are now
+converted to `None` for Earth Engine compatibility
+
+### v0.0.3
+
+**New Features:** - `SiteCollection` for batch operations with
+chunking - Export to Google Drive and Cloud Storage
+
+### v0.0.2
+
+- Various bug fixes
+
+### v0.0.1
+
+**Initial Release:** - `Site` class for polygon-first GEE analysis -
+`load_sites()` to load sites from GeoJSON with automatic CRS detection -
+Pre-configured layers: MapBiomas, Dynamic World, Sentinel-2 -
+Categorical and continuous data extraction
