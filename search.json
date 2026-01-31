@@ -1,0 +1,672 @@
+[
+  {
+    "objectID": "datasets_sentinel2.html",
+    "href": "datasets_sentinel2.html",
+    "title": "datasets.sentinel2",
+    "section": "",
+    "text": "Sentinel-2 is a European Space Agency (ESA) mission providing high-resolution optical imagery.\nKey features: - 10m resolution (visible and NIR bands) - ~5 day revisit time - 13 spectral bands - Available from 2015 onwards\nWe use the Surface Reflectance Harmonized collection (COPERNICUS/S2_SR_HARMONIZED) which includes atmospheric correction.",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "datasets_sentinel2.html#about-sentinel-2",
+    "href": "datasets_sentinel2.html#about-sentinel-2",
+    "title": "datasets.sentinel2",
+    "section": "",
+    "text": "Sentinel-2 is a European Space Agency (ESA) mission providing high-resolution optical imagery.\nKey features: - 10m resolution (visible and NIR bands) - ~5 day revisit time - 13 spectral bands - Available from 2015 onwards\nWe use the Surface Reflectance Harmonized collection (COPERNICUS/S2_SR_HARMONIZED) which includes atmospheric correction.",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "datasets_sentinel2.html#vegetation-indices",
+    "href": "datasets_sentinel2.html#vegetation-indices",
+    "title": "datasets.sentinel2",
+    "section": "Vegetation Indices",
+    "text": "Vegetation Indices\nThe most common indices for monitoring vegetation health and recovery:\n\nNDVI (Normalized Difference Vegetation Index): (NIR - Red) / (NIR + Red)\nEVI (Enhanced Vegetation Index): 2.5 * (NIR - Red) / (NIR + 6*Red - 7.5*Blue + 1)\n\n\nsource\n\nmask_s2_clouds\n\ndef mask_s2_clouds(\n    image\n):\n\nMask clouds in Sentinel-2 imagery using QA60 band.\n\nsource\n\n\nadd_indices\n\ndef add_indices(\n    image\n):\n\nAdd NDVI and EVI bands to a Sentinel-2 image.\nNote: Expects raw Sentinel-2 SR reflectance (scaled by 10000). Scales to 0-1 range before computing indices.\n\nsource\n\n\nget_s2_collection\n\ndef get_s2_collection(\n    start_date:str, end_date:str, geometry:NoneType=None, cloud_pct:int=20\n):\n\nGet a processed Sentinel-2 collection with NDVI and EVI.\nArgs: start_date: Start date (YYYY-MM-DD) end_date: End date (YYYY-MM-DD) geometry: Optional geometry to filter bounds cloud_pct: Maximum cloud cover percentage (default 20)\nReturns: ee.ImageCollection with NDVI and EVI bands added",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "datasets_sentinel2.html#presets",
+    "href": "datasets_sentinel2.html#presets",
+    "title": "datasets.sentinel2",
+    "section": "Presets",
+    "text": "Presets\nNote: NDVI and EVI are computed bands, so we need a slightly different approach. The ContinuousLayer points to the raw collection, and the extraction handles index computation.\nFor now, we provide a simpler preset that assumes indices are pre-computed.",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "datasets_sentinel2.html#usage",
+    "href": "datasets_sentinel2.html#usage",
+    "title": "datasets.sentinel2",
+    "section": "Usage",
+    "text": "Usage\nfrom gee_polygons.datasets.sentinel2 import SENTINEL2_NDVI, get_s2_collection\n\n# Option 1: Use the preset with extract_continuous\ndf = site.extract_continuous(\n    SENTINEL2_NDVI,\n    start_date='2020-01-01',\n    end_date='2024-12-31',\n    reducer='mean',\n    frequency='yearly'\n)\n\n# Option 2: Get the full collection for custom processing\ncollection = get_s2_collection('2020-01-01', '2024-12-31', site.geometry)",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "datasets_sentinel2.html#visualization-helpers",
+    "href": "datasets_sentinel2.html#visualization-helpers",
+    "title": "datasets.sentinel2",
+    "section": "Visualization Helpers",
+    "text": "Visualization Helpers\nFunctions for getting Sentinel-2 imagery ready for visualization with gee_polygons.visualize.\n\nsource\n\nget_sentinel_composite\n\ndef get_sentinel_composite(\n    geometry:Geometry, date_range:tuple, bands:list=None, cloud_pct:int=20, reducer:Literal='median'\n)-&gt;Image:\n\nGet a cloud-masked Sentinel-2 composite for visualization.\nThis returns an ee.Image ready for use with gee_polygons.visualize.render_image().\nArgs: geometry: Region of interest date_range: (start_date, end_date) as ‘YYYY-MM-DD’ strings bands: Bands to include (default: true color B4/B3/B2) cloud_pct: Maximum cloud cover percentage for filtering reducer: Temporal reducer (‘median’, ‘mean’, ‘mosaic’)\nReturns: ee.Image with selected bands, scaled to 0-1 reflectance\nExample: from gee_polygons.datasets.sentinel2 import get_sentinel_composite, SENTINEL_VIS from gee_polygons.visualize import render_image\nimage = get_sentinel_composite(\n    geometry=site.geometry,\n    date_range=('2020-06-01', '2020-08-31')\n)\n\npil_img = render_image(\n    image=image,\n    region=site.geometry.buffer(500).bounds(),\n    vis_params=SENTINEL_VIS,\n    boundary=site.geometry\n)",
+    "crumbs": [
+      "datasets.sentinel2"
+    ]
+  },
+  {
+    "objectID": "site.html",
+    "href": "site.html",
+    "title": "site",
+    "section": "",
+    "text": "The Site class is the fundamental unit of analysis in gee-polygons. It wraps a polygon geometry with temporal metadata, making it easy to extract time-series features from Google Earth Engine.\nA Site represents a single spatial unit (e.g., a restoration plot, conservation area, or agricultural field) that you want to analyze over time.\n\n            \n            \n\nsource\n\n\n\ndef Site(\n    feature:ee.Feature, start_year:Optional[int]=None, site_id:Optional[str]=None\n):\n\nA polygon with temporal context for GEE analysis.\nThe Site class wraps an ee.Feature with convenient accessors for common properties like start_year and area, plus helper methods for temporal analysis.",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "site.html#site",
+    "href": "site.html#site",
+    "title": "site",
+    "section": "",
+    "text": "The Site class is the fundamental unit of analysis in gee-polygons. It wraps a polygon geometry with temporal metadata, making it easy to extract time-series features from Google Earth Engine.\nA Site represents a single spatial unit (e.g., a restoration plot, conservation area, or agricultural field) that you want to analyze over time.\n\n            \n            \n\nsource\n\n\n\ndef Site(\n    feature:ee.Feature, start_year:Optional[int]=None, site_id:Optional[str]=None\n):\n\nA polygon with temporal context for GEE analysis.\nThe Site class wraps an ee.Feature with convenient accessors for common properties like start_year and area, plus helper methods for temporal analysis.",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "site.html#loading-sites",
+    "href": "site.html#loading-sites",
+    "title": "site",
+    "section": "Loading Sites",
+    "text": "Loading Sites\nHelper functions to load sites from common formats.\n\n            \n            \n\nsource\n\nload_sites\n\ndef load_sites(\n    path:Union[str, Path], source_crs:Optional[str]=None\n)-&gt;list[Site]:\n\nLoad sites from a GeoJSON file.\nArgs: path: Path to GeoJSON file source_crs: Override source CRS (auto-detected from file if present)\nReturns: List of Site objects\n\n            \n            \n\nsource\n\n\nsites_from_geodataframe\n\ndef sites_from_geodataframe(\n    gdf:gpd.GeoDataFrame, geometry_col:str='geometry'\n)-&gt;list[Site]:\n\nCreate Sites from a GeoDataFrame.\nThis is the recommended way to work with filtered/sorted site data: 1. Load your GeoJSON into a GeoDataFrame 2. Filter and sort using pandas/geopandas operations 3. Convert to Sites for GEE analysis\nArgs: gdf: A GeoDataFrame with polygon geometries geometry_col: Name of the geometry column (default ‘geometry’)\nReturns: List of Site objects\nExample: &gt;&gt;&gt; gdf = gpd.read_file(‘sites.geojson’) &gt;&gt;&gt; # Filter for large sites that started after 2015 &gt;&gt;&gt; filtered = gdf[(gdf[‘area_ha’] &gt; 10) & (gdf[‘start_year’] &gt; 2015)] &gt;&gt;&gt; # Sort by area descending &gt;&gt;&gt; filtered = filtered.sort_values(‘area_ha’, ascending=False) &gt;&gt;&gt; # Convert to Sites &gt;&gt;&gt; sites = sites_from_geodataframe(filtered)",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "site.html#example-usage",
+    "href": "site.html#example-usage",
+    "title": "site",
+    "section": "Example Usage",
+    "text": "Example Usage\nLet’s load some restoration sites and explore a single site.\n\n# Initialize Earth Engine (uncomment when running)\nee.Authenticate()\nee.Initialize(project=\"hs-brazilreforestation\")\n\n\n            \n            \n\n\n\n# Load sites from GeoJSON\nsites = load_sites('../data/restoration_sites_subset.geojson')\nprint(f\"Loaded {len(sites)} sites\")\n\n\n            \n            \n\n\nLoaded 10 sites\n\n\n\n# Explore a single site\nsite = sites[8]\nprint(site)\nprint(f\"Start year: {site.start_year}\")\nprint(f\"Area: {site.area_ha:.2f} ha\")\nprint(f\"Years for analysis: {site.years(end_year=2024)}\")\n\n\n            \n            \n\n\nSite(id=9368, start_year=2012)\nStart year: 2012\nArea: 13.19 ha\nYears for analysis: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]\n\n\n\nsite.geometry\n\n\n            \n            \n\n\nPolygon (188 vertices)type:Polygoncoordinates: List (6 elements)0: List (188 elements)0: [-42.275210643251626, -22.514167030511306]0:-42.2752106432516261:-22.5141670305113061: [-42.27548970699436, -22.514059697226372]0:-42.275489706994361:-22.5140596972263722: [-42.27559704330654, -22.51410262937128]0:-42.275597043306541:-22.514102629371283: [-42.27574730115466, -22.51408116097226]0:-42.275747301154661:-22.514081160972264: [-42.275639975610645, -22.51388796269542]0:-42.2756399756106451:-22.513887962695425: [-42.27582311225542, -22.513780802946762]0:-42.275823112255421:-22.5137808029467626: [-42.27598343758595, -22.513651834578887]0:-42.275983437585951:-22.5136518345788877: [-42.275983436256546, -22.51358743955051]0:-42.2759834362565461:-22.513587439550518: [-42.27594050620802, -22.513587434135154]0:-42.275940506208021:-22.5135874341351549: [-42.2758546361049, -22.513501574231505]0:-42.27585463610491:-22.51350157423150510: [-42.27570437568856, -22.513480103416555]0:-42.275704375688561:-22.51348010341655511: [-42.275639969743075, -22.51352303657724]0:-42.2756399697430751:-22.5135230365772412: [-42.27585463344533, -22.513308378347354]0:-42.275854633445331:-22.51330837834735413: [-42.27583317240558, -22.513179576211694]0:-42.275833172405581:-22.51317957621169414: [-42.27619809680631, -22.51305077590233]0:-42.276198096806311:-22.5130507759023315: [-42.27604783190905, -22.512921978241284]0:-42.276047831909051:-22.51292197824128416: [-42.276112229217915, -22.51281464971927]0:-42.2761122292179151:-22.5128146497192717: [-42.27621956010725, -22.512599989481448]0:-42.276219560107251:-22.51259998948144818: [-42.27619810087997, -22.512449720886305]0:-42.276198100879971:-22.51244972088630519: [-42.276262496690066, -22.51212772079941]0:-42.2762624966900661:-22.5121277207994120: [-42.276262492090886, -22.51208479130618]0:-42.2762624920908861:-22.5120847913061821: [-42.27604783088025, -22.51208479698881]0:-42.276047830880251:-22.5120847969888122: [-42.275940502487025, -22.512063330994096]0:-42.2759405024870251:-22.51206333099409623: [-42.27596197143439, -22.51199892745188]0:-42.275961971434391:-22.5119989274518824: [-42.27602637039906, -22.51187013424813]0:-42.276026370399061:-22.5118701342481325: [-42.276133700425, -22.511805730543585]0:-42.2761337004251:-22.51180573054358526: [-42.27617663266103, -22.5117198644323]0:-42.276176632661031:-22.511719864432327: [-42.27604783431356, -22.51148373383522]0:-42.276047834313561:-22.5114837338352228: [-42.27604783478149, -22.51141933882142]0:-42.276047834781491:-22.5114193388214229: [-42.275618504095036, -22.511333471593534]0:-42.2756185040950361:-22.51133347159353430: [-42.27555410249263, -22.511269069644836]0:-42.275554102492631:-22.51126906964483631: [-42.27600489988596, -22.51137640398435]0:-42.276004899885961:-22.5113764039843532: [-42.27606929687545, -22.511333471328502]0:-42.276069296875451:-22.51133347132850233: [-42.276112226499336, -22.51118320924917]0:-42.2761122264993361:-22.5111832092491734: [-42.276176631008966, -22.511161741375275]0:-42.2761766310089661:-22.51116174137527535: [-42.27619810101202, -22.511161743655087]0:-42.276198101012021:-22.51116174365508736: [-42.276305431000665, -22.511591067823602]0:-42.2763054310006651:-22.51159106782360237: [-42.27652009695992, -22.51163400116744]0:-42.276520096959921:-22.5116340011674438: [-42.27662742342832, -22.51159107168011]0:-42.276627423428321:-22.5115910716801139: [-42.27671328827313, -22.511634000707772]0:-42.276713288273131:-22.51163400070777240: [-42.276691828239706, -22.511784264295155]0:-42.2766918282397061:-22.51178426429515541: [-42.27649862381084, -22.51202039075548]0:-42.276498623810841:-22.5120203907554842: [-42.27652009656693, -22.512084788988204]0:-42.276520096566931:-22.51208478898820443: [-42.276713288755836, -22.51199892883776]0:-42.2767132887558361:-22.5119989288377644: [-42.27658448883268, -22.512213595420942]0:-42.276584488832681:-22.51221359542094245: [-42.27669182119072, -22.51227799320309]0:-42.276691821190721:-22.5122779932030946: [-42.2767562179283, -22.512599986592416]0:-42.27675621792831:-22.51259998659241647: [-42.27654156081949, -22.5127717151337]0:-42.276541560819491:-22.512771715133748: [-42.27654155813464, -22.512728783863228]0:-42.276541558134641:-22.51272878386322849: [-42.2764986226948, -22.512685850011305]0:-42.27649862269481:-22.51268585001130550: [-42.27636982792191, -22.512707321409327]0:-42.276369827921911:-22.51270732140932751: [-42.27628396516165, -22.512857578162468]0:-42.276283965161651:-22.51285757816246852: [-42.27633245250902, -22.513051535080365]0:-42.276332452509021:-22.51305153508036553: [-42.27639129690994, -22.51328691229198]0:-42.276391296909941:-22.5132869122919854: [-42.27679915263887, -22.513308369791204]0:-42.276799152638871:-22.51330836979120455: [-42.27697088673059, -22.513523038714375]0:-42.276970886730591:-22.51352303871437556: [-42.277443143756464, -22.51294344740214]0:-42.2774431437564641:-22.5129434474021457: [-42.2778510120501, -22.51285757783742]0:-42.27785101205011:-22.5128575778374258: [-42.278194462292795, -22.51249265225013]0:-42.2781944622927951:-22.5124926522501359: [-42.27828033273685, -22.51234238448175]0:-42.278280332736851:-22.5123423844817560: [-42.27821593162581, -22.512192122742313]0:-42.278215931625811:-22.51219212274231361: [-42.27770074145299, -22.512599982336017]0:-42.277700741452991:-22.51259998233601762: [-42.27731434627471, -22.512449717483978]0:-42.277314346274711:-22.51244971748397863: [-42.27722848058384, -22.51255705438234]0:-42.277228480583841:-22.5125570543823464: [-42.27714261426535, -22.51244971966045]0:-42.277142614265351:-22.5124497196604565: [-42.27727141057187, -22.51225652626703]0:-42.277271410571871:-22.5122565262670366: [-42.2774646146195, -22.512320922064912]0:-42.27746461461951:-22.51232092206491267: [-42.27752900961183, -22.512213591913657]0:-42.277529009611831:-22.51221359191365768: [-42.27744314399804, -22.511934526938692]0:-42.277443143998041:-22.51193452693869269: [-42.27744314844112, -22.511676934988632]0:-42.277443148441121:-22.51167693498863270: [-42.27774367755064, -22.511784260056544]0:-42.277743677550641:-22.51178426005654471: [-42.27780807666234, -22.511634000362754]0:-42.277808076662341:-22.51163400036275472: [-42.27770073802748, -22.51146226874756]0:-42.277700738027481:-22.5114622687475673: [-42.277593411358396, -22.511354942292726]0:-42.2775934113583961:-22.51135494229272674: [-42.27767927651908, -22.511161744377983]0:-42.277679276519081:-22.51116174437798375: [-42.27750754562423, -22.5109256107394]0:-42.277507545624231:-22.510925610739476: [-42.2779154010885, -22.51105441016614]0:-42.27791540108851:-22.5110544101661477: [-42.27802273647532, -22.51101147982171]0:-42.278022736475321:-22.5110114798217178: [-42.278022737347634, -22.510839749339123]0:-42.2780227373476341:-22.51083974933912379: [-42.27789393411594, -22.510710946296207]0:-42.277893934115941:-22.51071094629620780: [-42.27825886382392, -22.51071095075074]0:-42.278258863823921:-22.5107109507507481: [-42.278344730359144, -22.51017428949828]0:-42.2783447303591441:-22.5101742894982882: [-42.2781515370107, -22.510045490099582]0:-42.27815153701071:-22.51004549009958283: [-42.27797980234042, -22.510088425546165]0:-42.277979802340421:-22.51008842554616584: [-42.277765136842696, -22.50998109019282]0:-42.2777651368426961:-22.5099810901928285: [-42.27767927029407, -22.509873764850852]0:-42.277679270294071:-22.50987376485085286: [-42.27748607926547, -22.509809361663283]0:-42.277486079265471:-22.50980936166328387: [-42.27737874353611, -22.509787895725175]0:-42.277378743536111:-22.50978789572517588: [-42.27714261805961, -22.509916693108416]0:-42.277142618059611:-22.50991669310841689: [-42.27705675511984, -22.509787893787045]0:-42.277056755119841:-22.50978789378704590: [-42.2770567491406, -22.509530301666206]0:-42.27705674914061:-22.50953030166620691: [-42.2769923543574, -22.509487366038115]0:-42.27699235435741:-22.50948736603811592: [-42.277030166315235, -22.509261044189607]0:-42.2770301663152351:-22.50926104418960793: [-42.27697228974889, -22.50924001483783]0:-42.276972289748891:-22.5092400148378394: [-42.27699234943114, -22.50907950643288]0:-42.276992349431141:-22.5090795064328895: [-42.27714262108001, -22.50912244149436]0:-42.277142621080011:-22.5091224414943696: [-42.27718555229054, -22.509337098261685]0:-42.277185552290541:-22.50933709826168597: [-42.27731434960612, -22.50935856626414]0:-42.277314349606121:-22.5093585662641498: [-42.27752901408932, -22.50929417072681]0:-42.277529014089321:-22.5092941707268199: [-42.277722205601975, -22.5093585647902]0:-42.2777222056019751:-22.5093585647902100: [-42.277808072673174, -22.509294167722814]0:-42.2778080726731741:-22.509294167722814101: [-42.27778660759786, -22.509100969628008]0:-42.277786607597861:-22.509100969628008102: [-42.2776792731788, -22.509058038318134]0:-42.27767927317881:-22.509058038318134103: [-42.27761487384549, -22.508907777400882]0:-42.277614873845491:-22.508907777400882104: [-42.27770074208186, -22.50890777458708]0:-42.277700742081861:-22.50890777458708105: [-42.277765137292974, -22.50901510684431]0:-42.2777651372929741:-22.50901510684431106: [-42.27782953489378, -22.509036577479606]0:-42.277829534893781:-22.509036577479606107: [-42.27800126823569, -22.508993642966892]0:-42.278001268235691:-22.508993642966892108: [-42.278022733860006, -22.508950704595716]0:-42.2780227338600061:-22.508950704595716109: [-42.27793686875534, -22.508843372219854]0:-42.277936868755341:-22.508843372219854110: [-42.277679278144674, -22.50871457560443]0:-42.2776792781446741:-22.50871457560443111: [-42.277507541318464, -22.508778975367882]0:-42.2775075413184641:-22.508778975367882112: [-42.2774860768839, -22.508886308772574]0:-42.27748607688391:-22.508886308772574113: [-42.27737874513851, -22.50899364306389]0:-42.277378745138511:-22.50899364306389114: [-42.277261064146934, -22.509002726483807]0:-42.2772610641469341:-22.509002726483807115: [-42.27711958846335, -22.509048354712522]0:-42.277119588463351:-22.509048354712522116: [-42.276949418787, -22.508929237499558]0:-42.2769494187871:-22.508929237499558117: [-42.27690648714852, -22.50865017569264]0:-42.276906487148521:-22.50865017569264118: [-42.276648887302535, -22.508521379177477]0:-42.2766488873025351:-22.508521379177477119: [-42.27606929964192, -22.508285252368754]0:-42.276069299641921:-22.508285252368754120: [-42.275854634199455, -22.508349655042135]0:-42.2758546341994551:-22.508349655042135121: [-42.27583316751474, -22.50847845280262]0:-42.275833167514741:-22.50847845280262122: [-42.275597040167234, -22.508414051157605]0:-42.2755970401672341:-22.508414051157605123: [-42.27557557641866, -22.50871458100443]0:-42.275575576418661:-22.50871458100443124: [-42.27572583317582, -22.508800447392296]0:-42.275725833175821:-22.508800447392296125: [-42.275940497193176, -22.509186833633283]0:-42.2759404971931761:-22.509186833633283126: [-42.27632690052043, -22.50927270516431]0:-42.276326900520431:-22.50927270516431127: [-42.27638079533135, -22.509276453348317]0:-42.276380795331351:-22.509276453348317128: [-42.27639129648531, -22.509444432956133]0:-42.276391296485311:-22.509444432956133129: [-42.276369824702265, -22.50946589721381]0:-42.2763698247022651:-22.50946589721381130: [-42.276305433830146, -22.509830827057467]0:-42.2763054338301461:-22.509830827057467131: [-42.2763054271484, -22.50980936042605]0:-42.27630542714841:-22.50980936042605132: [-42.276069296649105, -22.510109888179386]0:-42.2760692966491051:-22.510109888179386133: [-42.276069301626706, -22.51021722354472]0:-42.2760693016267061:-22.51021722354472134: [-42.27572583911744, -22.5101742879929]0:-42.275725839117441:-22.5101742879929135: [-42.2757037865831, -22.510121799704176]0:-42.27570378658311:-22.510121799704176136: [-42.27509815906286, -22.509659290627898]0:-42.275098159062861:-22.509659290627898137: [-42.27503891820503, -22.50972349329539]0:-42.275038918205031:-22.50972349329539138: [-42.275021733614885, -22.509796523902565]0:-42.2750217336148851:-22.509796523902565139: [-42.2749530451381, -22.51008841966306]0:-42.27495304513811:-22.51008841966306140: [-42.27501782723765, -22.510174793914544]0:-42.275017827237651:-22.510174793914544141: [-42.27508185011239, -22.510260155128893]0:-42.275081850112391:-22.510260155128893142: [-42.275139090883386, -22.510260153826845]0:-42.2751390908833861:-22.510260153826845143: [-42.27514624916511, -22.510260152249852]0:-42.275146249165111:-22.510260152249852144: [-42.2752321158447, -22.510346022230422]0:-42.27523211584471:-22.510346022230422145: [-42.27536091306816, -22.51049628365846]0:-42.275360913068161:-22.51049628365846146: [-42.27532020600598, -22.51063197062635]0:-42.275320206005981:-22.51063197062635147: [-42.27529651304267, -22.510710948027214]0:-42.275296513042671:-22.510710948027214148: [-42.27527950612079, -22.510889506122737]0:-42.275279506120791:-22.510889506122737149: [-42.27518917603976, -22.510968546005387]0:-42.275189176039761:-22.510968546005387150: [-42.27521963799877, -22.51105992853934]0:-42.275219637998771:-22.51105992853934151: [-42.275253578575516, -22.51116173988567]0:-42.2752535785755161:-22.51116173988567152: [-42.274695454372996, -22.51150520692635]0:-42.2746954543729961:-22.51150520692635153: [-42.27465172345594, -22.511643684951327]0:-42.274651723455941:-22.511643684951327154: [-42.27456665340917, -22.511913055650734]0:-42.274566653409171:-22.511913055650734155: [-42.274588122243706, -22.511977457612172]0:-42.2745881222437061:-22.511977457612172156: [-42.274631049466954, -22.511998926182862]0:-42.2746310494669541:-22.511998926182862157: [-42.27480278743671, -22.511891592470047]0:-42.274802787436711:-22.511891592470047158: [-42.2749101183695, -22.51202039533575]0:-42.27491011836951:-22.51202039533575159: [-42.27489478174481, -22.51204084300142]0:-42.274894781744811:-22.51204084300142160: [-42.27478132253972, -22.512192121003018]0:-42.274781322539721:-22.512192121003018161: [-42.27478132200278, -22.51222008313133]0:-42.274781322002781:-22.51222008313133162: [-42.27478537906706, -22.512208350267443]0:-42.274785379067061:-22.512208350267443163: [-42.274792134639455, -22.51223537247311]0:-42.2747921346394551:-22.51223537247311164: [-42.274796023960675, -22.512231349216602]0:-42.2747960239606751:-22.512231349216602165: [-42.274781322133435, -22.512250388612784]0:-42.2747813221334351:-22.512250388612784166: [-42.27478132124345, -22.512298477660472]0:-42.274781321243451:-22.512298477660472167: [-42.274781316903095, -22.512739705603746]0:-42.2747813169030951:-22.512739705603746168: [-42.27480278862771, -22.51294344256925]0:-42.274802788627711:-22.51294344256925169: [-42.27469545813433, -22.513007844342997]0:-42.274695458134331:-22.513007844342997170: [-42.27460958587823, -22.513136645115935]0:-42.274609585878231:-22.513136645115935171: [-42.274588119620184, -22.513179572933268]0:-42.2745881196201841:-22.513179572933268172: [-42.27460958324118, -22.51322250651747]0:-42.274609583241181:-22.51322250651747173: [-42.274759856672944, -22.51335130468111]0:-42.2747598566729441:-22.51335130468111174: [-42.27476801791958, -22.513359466751375]0:-42.274768017919581:-22.513359466751375175: [-42.274781323699514, -22.513372771814254]0:-42.2747813236995141:-22.513372771814254176: [-42.274738383409606, -22.513501566660718]0:-42.2747383834096061:-22.513501566660718177: [-42.27473838371716, -22.513630368318474]0:-42.274738383717161:-22.513630368318474178: [-42.274867179899275, -22.513737699105203]0:-42.2748671798992751:-22.513737699105203179: [-42.27493158135024, -22.513737705511794]0:-42.274931581350241:-22.513737705511794180: [-42.2751247797216, -22.51378062858033]0:-42.27512477972161:-22.51378062858033181: [-42.275060385111374, -22.513930896851722]0:-42.2750603851113741:-22.513930896851722182: [-42.27506038597645, -22.513995292737828]0:-42.275060385976451:-22.513995292737828183: [-42.27506037925776, -22.514038231930602]0:-42.275060379257761:-22.514038231930602184: [-42.27491011799394, -22.51429582561586]0:-42.274910117993941:-22.51429582561586185: [-42.27507370965564, -22.514405669996638]0:-42.275073709655641:-22.514405669996638186: [-42.275275043584585, -22.51431729322403]0:-42.2752750435845851:-22.51431729322403187: [-42.275210643251626, -22.514167030511306]0:-42.2752106432516261:-22.5141670305113061: List (4 elements)0: [-42.275511172239035, -22.513823562640546]0:-42.2755111722390351:-22.5138235626405461: [-42.27561850275632, -22.5136303685588]0:-42.275618502756321:-22.51363036855882: [-42.27570437568856, -22.513480103416555]0:-42.275704375688561:-22.5134801034165553: [-42.275511172239035, -22.513823562640546]0:-42.2755111722390351:-22.5138235626405462: List (4 elements)0: [-42.276885022286095, -22.511913064626548]0:-42.2768850222860951:-22.5119130646265481: [-42.277056752651134, -22.511848667586033]0:-42.2770567526511341:-22.5118486675860332: [-42.276713288755836, -22.51199892883776]0:-42.2767132887558361:-22.511998928837763: [-42.276885022286095, -22.511913064626548]0:-42.2768850222860951:-22.5119130646265483: List (4 elements)0: [-42.276970886536674, -22.509251235728623]0:-42.2769708865366741:-22.5092512357286231: [-42.27688502296862, -22.509208307867446]0:-42.276885022968621:-22.5092083078674462: [-42.27697228974889, -22.50924001483783]0:-42.276972289748891:-22.509240014837833: [-42.276970886536674, -22.509251235728623]0:-42.2769708865366741:-22.5092512357286234: List (4 elements)0: [-42.275259678303726, -22.51343725784634]0:-42.2752596783037261:-22.513437257846341: [-42.27519838810252, -22.513608878265188]0:-42.275198388102521:-22.5136088782651882: [-42.2751247797216, -22.51378062858033]0:-42.27512477972161:-22.513780628580333: [-42.275259678303726, -22.51343725784634]0:-42.2752596783037261:-22.513437257846345: List (4 elements)0: [-42.27527503988412, -22.513394243721432]0:-42.275275039884121:-22.5133942437214321: [-42.27536091311331, -22.513179572966447]0:-42.275360913113311:-22.5131795729664472: [-42.275259678303726, -22.51343725784634]0:-42.2752596783037261:-22.513437257846343: [-42.27527503988412, -22.513394243721432]0:-42.275275039884121:-22.513394243721432\n\n\n\n# Get buffered geometry for context\nbuffer_1km = site.buffer(1000)\nprint(f\"Buffered geometry created\")\n\n\n            \n            \n\n\nBuffered geometry created",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "site.html#loading-sites-from-geodataframe",
+    "href": "site.html#loading-sites-from-geodataframe",
+    "title": "site",
+    "section": "Loading Sites from GeoDataFrame",
+    "text": "Loading Sites from GeoDataFrame\nFor workflows where you need to filter or sort sites before analysis, it’s more efficient to: 1. Load the GeoJSON into a GeoDataFrame 2. Filter and sort using pandas/geopandas operations (fast, in-memory) 3. Convert only the sites you need to Site objects\nThis avoids creating Earth Engine features for sites you’ll filter out anyway.\n\n# Load GeoJSON into GeoDataFrame for fast filtering\ngdf = gpd.read_file('../data/restoration_sites_subset.geojson')\nprint(f\"Loaded {len(gdf)} sites into GeoDataFrame\")\nprint(f\"CRS: {gdf.crs}\")\ngdf.head()\n\n\n            \n            \n\n\nLoaded 10 sites into GeoDataFrame\nCRS: EPSG:5880\n\n\n\n\n\n\n\n\n\ncategory\nsource\nhas_project\nproject_name\nexecuting_institution\nmanaging_institution\nfinancing_institution\nmain_method\ncombined_method\nstrategy\n...\nproject_total_area_ha\nproject_mean_site_area_ha\nproject_mean_dispersion_km\nproject_max_dispersion_km\ncentroid_lon\ncentroid_lat\nperimeter_m\nshape_complexity\nrid\ngeometry\n\n\n\n\n0\nrestauracao\nAliança pela Restauração na Amazônia\nSim\nPrograma de recuperacao de areas degradadas - ...\nOnca Puma Mineracao\nnao identificado\nnao identificado\nenriquecimento\ncontrole das plantas competidoras\nRegeneração Natural com Manejo\n...\n86.704527\n28.901509\n2.699984e+04\n4.030311e+04\n5.322801e+06\n9.280290e+06\n2713.351189\n4.455536\n3107\nPOLYGON Z ((5322649.663 9279737.977 0, 5322649...\n\n\n1\nrestauracao\nPacto pela Restauração da Mata Atlântica\nSim\nMata Atlantica, das encostas as areas alagadas...\nSPVS\nnao identificado\nFUNBIO,MMA,KFW\nenriquecimento\nnao identificado\nRegeneração Natural com Manejo\n...\n651.186341\n10.853106\n6.590103e+05\n2.725318e+06\n5.525798e+06\n7.183378e+06\n3136.600149\n6.355574\n3153\nPOLYGON Z ((5525444.601 7183290.446 0, 5525444...\n\n\n2\nrestauracao\nPacto pela Restauração da Mata Atlântica\nSim\nnao identificado\nnao identificado\nSEMIL-SP\nnao identificado\nadensamento\nnao identificado\nRegeneração Natural com Manejo\n...\n228.300262\n5.435721\n2.400005e+07\n4.269652e+07\n5.791646e+06\n7.431742e+06\n6347.796596\n9.286339\n3226\nPOLYGON Z ((5790809.752 7431272.341 0, 5790776...\n\n\n3\nrestauracao\nPacto pela Restauração da Mata Atlântica\nSim\nnao identificado\nnao identificado\nSEMIL-SP\nnao identificado\nadensamento\nnao identificado\nRegeneração Natural com Manejo\n...\n104.184078\n14.883440\n1.902321e+07\n2.225268e+07\n5.187825e+06\n7.531541e+06\n7300.762070\n12.221759\n4210\nPOLYGON Z ((5187930.677 7531850.711 0, 5187971...\n\n\n4\nrestauracao\nPacto pela Restauração da Mata Atlântica\nSim\nnao identificado\nnao identificado\nSEMIL-SP\nnao identificado\nplantio de mudas\nnao identificado\nPlantio em Área Total\n...\n204.103345\n2.685570\n2.713580e+07\n4.506196e+07\n5.619900e+06\n7.654089e+06\n2602.480123\n7.461996\n5461\nPOLYGON Z ((5620178.276 7654188.507 0, 5620178...\n\n\n\n\n5 rows × 36 columns\n\n\n\n\n# Filter for sites larger than 20 hectares\nfiltered = gdf[gdf['area_ha'] &gt; 20].copy()\nprint(f\"Filtered to {len(filtered)} sites with area &gt; 10 ha\")\n\n# Sort by area (largest first)\nfiltered = filtered.sort_values('area_ha', ascending=False)\n\n# Convert filtered GeoDataFrame to Sites\nsites = sites_from_geodataframe(filtered)\nprint(f\"Created {len(sites)} Site objects\")\n\n# Check the first site\nprint(sites[0])\n\n\n            \n            \n\n\nFiltered to 5 sites with area &gt; 10 ha\nCreated 5 Site objects\nSite(id=3226, start_year=2021)\n\n\n\n# You can also create a single Site from a specific row\nrow = gdf.iloc[0]  # Get first row\nsingle_site = Site.from_geodataframe_row(row, source_crs=str(gdf.crs))\nprint(f\"Single site: {single_site}\")\n\n\n            \n            \n\n\nSingle site: Site(id=3107, start_year=2016)",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "site.html#visualizing-sites",
+    "href": "site.html#visualizing-sites",
+    "title": "site",
+    "section": "Visualizing Sites",
+    "text": "Visualizing Sites\nNow that we have a site loaded, we’d like to see it on a map. Let’s add a show() method using geemap’s interactive mapping.\n\n            \n            \n\nsource\n\nSite.show\n\ndef show(\n    zoom:int=14, basemap:str='SATELLITE', color:str='blue', fill_color:str='#0000ff33'\n)-&gt;geemap.Map:\n\nDisplay the site on an interactive map.\nArgs: zoom: Initial zoom level (default 14) basemap: Basemap type - ‘SATELLITE’, ‘ROADMAP’, ‘TERRAIN’, ‘HYBRID’ color: Outline color (default ‘blue’) fill_color: Fill color with alpha (default semi-transparent blue)\nReturns: A geemap.Map object centered on the site\n\n# View the site on a satellite map\nsite.show()",
+    "crumbs": [
+      "site"
+    ]
+  },
+  {
+    "objectID": "collection.html",
+    "href": "collection.html",
+    "title": "collection",
+    "section": "",
+    "text": "Internal utilities for splitting large site collections into manageable chunks.\n\nsource\n\n\n\ndef chunk_items(\n    items:Any, chunk_size:int\n)-&gt;Iterator[List]:\n\nYield chunks of items from an iterable.\nArgs: items: Iterable of items to chunk (list, generator, etc.) chunk_size: Maximum items per chunk\nYields: Lists of up to chunk_size items\n\nsource\n\n\n\n\ndef calculate_chunk_size(\n    n_years:int, n_sites:int, target_rows:int=40000\n)-&gt;int:\n\nCalculate optimal chunk size based on expected data volume.\nHeuristics: - Target ~40,000 result rows per getInfo() call (conservative for GEE) - Each site-year produces ~10-50 class rows for categorical data - For continuous, each site-year produces 1 row per band\nArgs: n_years: Number of years being extracted n_sites: Total number of sites target_rows: Target maximum rows per chunk (default 40,000)\nReturns: Recommended number of sites per chunk",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#chunking-utilities",
+    "href": "collection.html#chunking-utilities",
+    "title": "collection",
+    "section": "",
+    "text": "Internal utilities for splitting large site collections into manageable chunks.\n\nsource\n\n\n\ndef chunk_items(\n    items:Any, chunk_size:int\n)-&gt;Iterator[List]:\n\nYield chunks of items from an iterable.\nArgs: items: Iterable of items to chunk (list, generator, etc.) chunk_size: Maximum items per chunk\nYields: Lists of up to chunk_size items\n\nsource\n\n\n\n\ndef calculate_chunk_size(\n    n_years:int, n_sites:int, target_rows:int=40000\n)-&gt;int:\n\nCalculate optimal chunk size based on expected data volume.\nHeuristics: - Target ~40,000 result rows per getInfo() call (conservative for GEE) - Each site-year produces ~10-50 class rows for categorical data - For continuous, each site-year produces 1 row per band\nArgs: n_years: Number of years being extracted n_sites: Total number of sites target_rows: Target maximum rows per chunk (default 40,000)\nReturns: Recommended number of sites per chunk",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#chunkedresult",
+    "href": "collection.html#chunkedresult",
+    "title": "collection",
+    "section": "ChunkedResult",
+    "text": "ChunkedResult\nA result container that tracks both successful extractions and any errors that occurred.\n\nsource\n\nChunkedResult\n\ndef ChunkedResult(\n    data:pd.DataFrame, errors:List[dict]=&lt;factory&gt;\n)-&gt;None:\n\nResult from chunked extraction with error tracking.\nAttributes: data: DataFrame containing successful extractions errors: List of dicts with site_id, chunk_idx, and error message",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#sitecollection",
+    "href": "collection.html#sitecollection",
+    "title": "collection",
+    "section": "SiteCollection",
+    "text": "SiteCollection\nThe SiteCollection class enables batch operations on multiple sites. It supports:\n\nEager mode: All Site objects created upfront (default for &lt;1000 sites)\nLazy mode: Site objects created on-demand to save memory for large collections\n\nUse SiteCollection when you need to extract data from hundreds to thousands of sites efficiently.\n\nsource\n\nSiteCollection\n\ndef SiteCollection(\n    sites:Optional[List[Site]]=None, feature_dicts:Optional[List[dict]]=None, source_crs:str='EPSG:4326',\n    metadata:Optional[dict]=None\n):\n\nA collection of Sites for batch operations.\nSupports two modes: - Eager: All Site objects created upfront (default for &lt;1000 sites) - Lazy: Site objects created on-demand from stored feature dicts\nExample: # Load and extract from many sites sites = SiteCollection.from_geojson(‘restoration_sites.geojson’)\n# Interactive batch extraction (Path A)\nresult = sites.extract_categorical(MAPBIOMAS_LULC, years=range(2010, 2024))\ndf = result.data\n\n# Export for large collections (Path B)\ntask = sites.export_categorical(\n    MAPBIOMAS_LULC,\n    years=range(2010, 2024),\n    destination=ExportDestination(type='drive', folder='exports')\n)",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#batch-extraction-methods-path-a",
+    "href": "collection.html#batch-extraction-methods-path-a",
+    "title": "collection",
+    "section": "Batch Extraction Methods (Path A)",
+    "text": "Batch Extraction Methods (Path A)\nThese methods extract data interactively, returning pandas DataFrames. Best for collections under ~5000 sites.\n\nsource\n\nSiteCollection.extract_categorical\n\ndef extract_categorical(\n    layer:'CategoricalLayer', years:List[int], chunk_size:Optional[int]=None, max_pixels:int=1000000000,\n    progress:bool=True\n)-&gt;ChunkedResult:\n\nExtract categorical data from all sites.\nBatches sites into chunks to avoid GEE timeout/memory limits. Each chunk is processed with a single getInfo() call.\nArgs: layer: CategoricalLayer to extract from years: List of years to extract chunk_size: Sites per chunk (auto-calculated if None) max_pixels: Max pixels per reduceRegion call progress: Show progress bar (requires tqdm)\nReturns: ChunkedResult with DataFrame and any errors\nExample: result = sites.extract_categorical(MAPBIOMAS_LULC, years=[2020, 2021, 2022]) print(result) # ChunkedResult(sites=500, errors=2, success_rate=99.6%) df = result.data\n\nsource\n\n\nSiteCollection.extract_continuous\n\ndef extract_continuous(\n    layer:'ContinuousLayer', start_date:str, end_date:str, reducer:str='mean', frequency:str='yearly',\n    chunk_size:Optional[int]=None, max_pixels:int=1000000000, progress:bool=True\n)-&gt;ChunkedResult:\n\nExtract continuous data from all sites.\nBatches sites into chunks to avoid GEE timeout/memory limits.\nArgs: layer: ContinuousLayer to extract from start_date: Start date (YYYY-MM-DD) end_date: End date (YYYY-MM-DD) reducer: Spatial reducer (‘mean’, ‘median’, ‘min’, ‘max’) frequency: Temporal grouping (‘all’, ‘monthly’, ‘yearly’) chunk_size: Sites per chunk (auto-calculated if None) max_pixels: Max pixels per reduceRegion call progress: Show progress bar\nReturns: ChunkedResult with DataFrame and any errors",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#export-methods-path-b",
+    "href": "collection.html#export-methods-path-b",
+    "title": "collection",
+    "section": "Export Methods (Path B)",
+    "text": "Export Methods (Path B)\nThese methods export data to Google Drive or Cloud Storage using GEE batch tasks. Best for large collections (&gt;5000 sites).\n\nsource\n\nSiteCollection.export_categorical\n\ndef export_categorical(\n    layer:'CategoricalLayer', years:List[int], destination:'ExportDestination', config:Optional['ExportConfig']=None,\n    max_pixels:int=1000000000\n)-&gt;'ExportTask':\n\nExport categorical extraction to Google Drive or Cloud Storage.\nFor collections larger than ~5000 sites, this is more reliable than interactive extraction. Results are exported as CSV or GeoJSON files, one per chunk.\nArgs: layer: CategoricalLayer to extract from years: List of years to extract destination: Where to export (Drive or GCS) config: Export configuration (chunk size, concurrency) max_pixels: Max pixels per reduceRegion call\nReturns: ExportTask for monitoring progress\nExample: from gee_polygons.export import ExportDestination, ExportConfig\ntask = sites.export_categorical(\n    layer=MAPBIOMAS_LULC,\n    years=range(2010, 2024),\n    destination=ExportDestination(type='drive', folder='exports'),\n    config=ExportConfig(chunk_size=50, max_concurrent=15)\n)\n\n# Monitor progress\nprint(task.status())\n\n# Wait for completion\ntask.wait(timeout_minutes=180)\n\n# Get result file locations\nprint(task.results_info())\n\nsource\n\n\nSiteCollection.export_continuous\n\ndef export_continuous(\n    layer:'ContinuousLayer', start_date:str, end_date:str, destination:'ExportDestination', reducer:str='mean',\n    frequency:str='yearly', config:Optional['ExportConfig']=None, max_pixels:int=1000000000\n)-&gt;'ExportTask':\n\nExport continuous extraction to Google Drive or Cloud Storage.\nArgs: layer: ContinuousLayer to extract from start_date: Start date (YYYY-MM-DD) end_date: End date (YYYY-MM-DD) destination: Where to export (Drive or GCS) reducer: Spatial reducer (‘mean’, ‘median’, ‘min’, ‘max’) frequency: Temporal grouping (‘monthly’, ‘yearly’) config: Export configuration max_pixels: Max pixels per reduceRegion call\nReturns: ExportTask for monitoring progress",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#internal-extraction-functions",
+    "href": "collection.html#internal-extraction-functions",
+    "title": "collection",
+    "section": "Internal Extraction Functions",
+    "text": "Internal Extraction Functions\nThese functions handle the actual GEE operations for each chunk.",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#export-helper-functions",
+    "href": "collection.html#export-helper-functions",
+    "title": "collection",
+    "section": "Export Helper Functions",
+    "text": "Export Helper Functions",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "collection.html#example-usage",
+    "href": "collection.html#example-usage",
+    "title": "collection",
+    "section": "Example Usage",
+    "text": "Example Usage\n\n# Initialize Earth Engine\nee.Authenticate()\nee.Initialize(project=\"your-project-id\")\n\n\n# Load a collection of sites\nsites = SiteCollection.from_geojson('../data/restoration_sites_subset.geojson')\nprint(sites)\n\n\n# Extract categorical data (Path A - interactive)\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_LULC\n\nresult = sites.extract_categorical(MAPBIOMAS_LULC, years=range(2018, 2023))\nprint(result)\nresult.data.head()",
+    "crumbs": [
+      "collection"
+    ]
+  },
+  {
+    "objectID": "layers.html",
+    "href": "layers.html",
+    "title": "layers",
+    "section": "",
+    "text": "A CategoricalLayer describes where categorical raster data lives and how to access it.\nKey insight: Categorical data can be encoded temporally in two ways: - band-per-year (MapBiomas): Each year is a separate band in a single ee.Image - collection (Dynamic World): An ee.ImageCollection filtered by date\nThe temporal_mode field makes this explicit.\nThis object contains no Earth Engine calls, no geometry, no statistics. Just descriptors.\n\nsource\n\n\n\ndef CategoricalLayer(\n    asset_id:str, temporal_mode:Literal='band', band_pattern:Optional=None, band:Optional=None, scale:int=30,\n    class_map:Optional=None, palette:Optional=None\n)-&gt;None:\n\nA descriptor for a categorical raster layer.\nSupports two temporal modes: - ‘band’: Each year is a band in a single Image (e.g., MapBiomas) - ‘collection’: An ImageCollection filtered by date (e.g., Dynamic World)\nAttributes: asset_id: GEE asset path temporal_mode: How time is encoded - ‘band’ or ‘collection’ band_pattern: For ‘band’ mode - pattern with {} for year (e.g., ‘classification_{}’) band: For ‘collection’ mode - the band name to select (e.g., ‘label’) scale: Pixel resolution in meters (default 30) class_map: Optional mapping of class values to names palette: Optional mapping of class values to hex colors",
+    "crumbs": [
+      "layers"
+    ]
+  },
+  {
+    "objectID": "layers.html#categoricallayer",
+    "href": "layers.html#categoricallayer",
+    "title": "layers",
+    "section": "",
+    "text": "A CategoricalLayer describes where categorical raster data lives and how to access it.\nKey insight: Categorical data can be encoded temporally in two ways: - band-per-year (MapBiomas): Each year is a separate band in a single ee.Image - collection (Dynamic World): An ee.ImageCollection filtered by date\nThe temporal_mode field makes this explicit.\nThis object contains no Earth Engine calls, no geometry, no statistics. Just descriptors.\n\nsource\n\n\n\ndef CategoricalLayer(\n    asset_id:str, temporal_mode:Literal='band', band_pattern:Optional=None, band:Optional=None, scale:int=30,\n    class_map:Optional=None, palette:Optional=None\n)-&gt;None:\n\nA descriptor for a categorical raster layer.\nSupports two temporal modes: - ‘band’: Each year is a band in a single Image (e.g., MapBiomas) - ‘collection’: An ImageCollection filtered by date (e.g., Dynamic World)\nAttributes: asset_id: GEE asset path temporal_mode: How time is encoded - ‘band’ or ‘collection’ band_pattern: For ‘band’ mode - pattern with {} for year (e.g., ‘classification_{}’) band: For ‘collection’ mode - the band name to select (e.g., ‘label’) scale: Pixel resolution in meters (default 30) class_map: Optional mapping of class values to names palette: Optional mapping of class values to hex colors",
+    "crumbs": [
+      "layers"
+    ]
+  },
+  {
+    "objectID": "layers.html#continuouslayer",
+    "href": "layers.html#continuouslayer",
+    "title": "layers",
+    "section": "ContinuousLayer",
+    "text": "ContinuousLayer\nA ContinuousLayer describes continuous-valued raster time series (e.g., NDVI, EVI, temperature).\nKey features: - Multi-band support: Extract one or more bands in a single call - Preprocessing hook: Optional preprocess function for derived indices, cloud masking, scaling - Dataset-agnostic: The extraction logic knows nothing about specific datasets\nThe preprocess function receives an ee.Image and returns an ee.Image with the bands you want to extract. This is where dataset-specific logic (cloud masking, index computation) lives.\n\n            \n            \n\nsource\n\nContinuousLayer\n\ndef ContinuousLayer(\n    collection_id:str, bands:List, scale:int=10, preprocess:Optional=None\n)-&gt;None:\n\nA descriptor for a continuous raster time series.\nUsed for floating-point data like vegetation indices, temperature, or any continuous signal that varies over time.\nAttributes: collection_id: GEE ImageCollection ID bands: List of band names to extract (output columns in DataFrame) scale: Pixel resolution in meters (default 10) preprocess: Optional function (ee.Image -&gt; ee.Image) for preprocessing. Use this for cloud masking, scaling, computing derived indices. Must return an image containing all bands listed in bands.\nExample: # Simple - extract existing band ContinuousLayer(collection_id=‘…’, bands=[‘B4’])\n# With preprocessing - compute NDVI\nContinuousLayer(\n    collection_id='COPERNICUS/S2_SR_HARMONIZED',\n    bands=['NDVI', 'EVI'],\n    preprocess=compute_s2_indices  # defined in datasets/sentinel2.py\n)",
+    "crumbs": [
+      "layers"
+    ]
+  },
+  {
+    "objectID": "layers.html#examples",
+    "href": "layers.html#examples",
+    "title": "layers",
+    "section": "Examples",
+    "text": "Examples\n\nCategoricalLayer - Band Mode (MapBiomas style)\n\n# Band-per-year mode (like MapBiomas)\nmapbiomas_style = CategoricalLayer(\n    asset_id=\"projects/mapbiomas-public/assets/brazil/lulc/collection9/...\",\n    temporal_mode=\"band\",\n    band_pattern=\"classification_{}\",\n    scale=30\n)\n\nprint(mapbiomas_style)\nprint(f\"Band for 2020: {mapbiomas_style.band_name(2020)}\")\n\nCategoricalLayer(asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection9/...', temporal_mode='band', band_pattern='classification_{}', band=None, scale=30, class_map=None, palette=None)\nBand for 2020: classification_2020\n\n\n\n\nCategoricalLayer - Collection Mode (Dynamic World style)\n\n# Collection mode (like Dynamic World) - filter by date, not bands\ndynamic_world_style = CategoricalLayer(\n    asset_id=\"GOOGLE/DYNAMICWORLD/V1\",\n    temporal_mode=\"collection\",\n    band=\"label\",\n    scale=10,\n    class_map={\n        0: \"Water\",\n        1: \"Trees\",\n        2: \"Grass\",\n        3: \"Flooded Vegetation\",\n        4: \"Crops\",\n        5: \"Shrub & Scrub\",\n        6: \"Built Area\",\n        7: \"Bare Ground\",\n        8: \"Snow & Ice\",\n    }\n)\n\nprint(dynamic_world_style)\nprint(f\"Class 1: {dynamic_world_style.class_name(1)}\")\n\nCategoricalLayer(asset_id='GOOGLE/DYNAMICWORLD/V1', temporal_mode='collection', band_pattern=None, band='label', scale=10, class_map={0: 'Water', 1: 'Trees', 2: 'Grass', 3: 'Flooded Vegetation', 4: 'Crops', 5: 'Shrub & Scrub', 6: 'Built Area', 7: 'Bare Ground', 8: 'Snow & Ice'}, palette=None)\nClass 1: Trees\n\n\n\n\nContinuousLayer (NDVI, EVI, etc.)\n\n# Simple continuous layer - extract existing bands\ntemperature_layer = ContinuousLayer(\n    collection_id=\"MODIS/006/MOD11A1\",\n    bands=[\"LST_Day_1km\"],\n    scale=1000\n)\nprint(temperature_layer)\n\n# With preprocessing - the preprocess function is defined in dataset modules\n# from gee_polygons.datasets.sentinel2 import preprocess_s2_indices\n# \n# ndvi_evi_layer = ContinuousLayer(\n#     collection_id=\"COPERNICUS/S2_SR_HARMONIZED\",\n#     bands=[\"NDVI\", \"EVI\"],\n#     preprocess=preprocess_s2_indices\n# )\n\nContinuousLayer(collection_id='MODIS/006/MOD11A1', bands=['LST_Day_1km'], scale=1000, preprocess=None)\n\n\n\nBoth layer types are intentionally simple configuration objects. Dataset-specific presets (MapBiomas, Dynamic World, Sentinel-2) are defined in gee_polygons.datasets modules.",
+    "crumbs": [
+      "layers"
+    ]
+  },
+  {
+    "objectID": "datasets_mapbiomas.html",
+    "href": "datasets_mapbiomas.html",
+    "title": "datasets.mapbiomas",
+    "section": "",
+    "text": "MapBiomas is a collaborative network that produces annual land cover and land use maps for Brazil (and other countries) using Landsat imagery and machine learning.\nThis module provides pre-configured CategoricalLayer objects for common MapBiomas products, so you can extract statistics without manually specifying asset paths and class definitions.",
+    "crumbs": [
+      "datasets.mapbiomas"
+    ]
+  },
+  {
+    "objectID": "datasets_mapbiomas.html#about-mapbiomas",
+    "href": "datasets_mapbiomas.html#about-mapbiomas",
+    "title": "datasets.mapbiomas",
+    "section": "",
+    "text": "MapBiomas is a collaborative network that produces annual land cover and land use maps for Brazil (and other countries) using Landsat imagery and machine learning.\nThis module provides pre-configured CategoricalLayer objects for common MapBiomas products, so you can extract statistics without manually specifying asset paths and class definitions.",
+    "crumbs": [
+      "datasets.mapbiomas"
+    ]
+  },
+  {
+    "objectID": "datasets_mapbiomas.html#deforestation-secondary-vegetation",
+    "href": "datasets_mapbiomas.html#deforestation-secondary-vegetation",
+    "title": "datasets.mapbiomas",
+    "section": "Deforestation & Secondary Vegetation",
+    "text": "Deforestation & Secondary Vegetation\nThe deforestation/regeneration product tracks: - Primary vs. secondary vegetation - Deforestation events - Regrowth/regeneration",
+    "crumbs": [
+      "datasets.mapbiomas"
+    ]
+  },
+  {
+    "objectID": "datasets_mapbiomas.html#land-use-land-cover-lulc",
+    "href": "datasets_mapbiomas.html#land-use-land-cover-lulc",
+    "title": "datasets.mapbiomas",
+    "section": "Land Use / Land Cover (LULC)",
+    "text": "Land Use / Land Cover (LULC)\nThe main LULC product with detailed land cover classes.",
+    "crumbs": [
+      "datasets.mapbiomas"
+    ]
+  },
+  {
+    "objectID": "datasets_mapbiomas.html#usage",
+    "href": "datasets_mapbiomas.html#usage",
+    "title": "datasets.mapbiomas",
+    "section": "Usage",
+    "text": "Usage\nThese presets make extraction simple:\n\n# Example usage:\n#\n# from gee_polygons.datasets.mapbiomas import MAPBIOMAS_DEFREG\n# from gee_polygons.site import load_sites\n#\n# sites = load_sites('restoration_sites.geojson')\n# site = sites[0]\n#\n# # Extract deforestation/regeneration stats\n# df = site.extract_categorical(MAPBIOMAS_DEFREG, years=range(2018, 2025))\n# print(df.head())\n\n\n# Check the layer configuration\nprint(MAPBIOMAS_DEFREG)\nprint(f\"\\nClass 3: {MAPBIOMAS_DEFREG.class_name(3)} ({MAPBIOMAS_DEFREG.class_color(3)})\")\nprint(f\"Class 5: {MAPBIOMAS_DEFREG.class_name(5)} ({MAPBIOMAS_DEFREG.class_color(5)})\")\n\nCategoricalLayer(asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_deforestation_secondary_vegetation_v2', band_pattern='classification_{}', scale=30, class_map={0: 'Other', 1: 'Anthropic', 2: 'Primary Vegetation', 3: 'Secondary Vegetation', 4: 'Deforestation in Primary Veg', 5: 'Secondary Veg Regrowth', 6: 'Deforestation in Secondary Veg', 7: 'Not Applied'}, palette={0: '#212121', 1: '#cdc98d', 2: '#09611f', 3: '#4ea376', 4: '#e31a1c', 5: '#94fc03', 6: '#ffa500', 7: '#212121'})\n\nClass 3: Secondary Vegetation (#4ea376)\nClass 5: Secondary Veg Regrowth (#94fc03)",
+    "crumbs": [
+      "datasets.mapbiomas"
+    ]
+  },
+  {
+    "objectID": "charts.html",
+    "href": "charts.html",
+    "title": "charts",
+    "section": "",
+    "text": "markdown## Default Color Palette\nA colorblind-friendly palette based on ColorBrewer, used when no layer palette or custom colors are provided.",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#data-preparation",
+    "href": "charts.html#data-preparation",
+    "title": "charts",
+    "section": "Data Preparation",
+    "text": "Data Preparation\nHelper functions to transform extraction results into chart-ready formats.\n\n            \n            \n\nsource\n\nprepare_chart_data\n\ndef prepare_chart_data(\n    df:DataFrame, value_col:str='area_ha', as_percentage:bool=False\n)-&gt;DataFrame:\n\nPivot extraction data for charting.\nArgs: df: DataFrame from extract_categorical with columns: site_id, year, class_value, count, area_ha, class_name value_col: Column to use for values (‘area_ha’ or ‘count’) as_percentage: If True, convert to percentages per year\nReturns: Pivoted DataFrame with years as index, classes as columns\n\n            \n            \n\nsource\n\n\nget_class_colors\n\ndef get_class_colors(\n    classes:list, custom_colors:Optional=None, layer:Optional=None\n)-&gt;dict:\n\nGet colors for each class, using layer palette, custom, or defaults.\nPriority order: 1. custom_colors (if provided) 2. layer.palette (if layer provided and has palette) 3. DEFAULT_PALETTE cycle\nArgs: classes: List of class names custom_colors: Optional dict mapping class names to hex colors layer: Optional CategoricalLayer with palette attribute\nReturns: Dict mapping class names to colors",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#static-charts-matplotlib",
+    "href": "charts.html#static-charts-matplotlib",
+    "title": "charts",
+    "section": "Static Charts (Matplotlib)",
+    "text": "Static Charts (Matplotlib)\nPublication-ready static visualizations.\n\n            \n            \n\nsource\n\nplot_class_distribution\n\ndef plot_class_distribution(\n    df:DataFrame, title:str='Class Distribution Over Time (%)', colors:Optional=None, layer:Optional=None,\n    figsize:tuple=(12, 6), marker:str='o', linewidth:float=2, markersize:float=6, grid:bool=True,\n    legend_loc:str='center left', legend_bbox:tuple=(1.02, 0.5)\n)-&gt;tuple:\n\nCreate a line chart showing class distribution percentages over time.\nArgs: df: DataFrame from extract_categorical title: Chart title colors: Optional dict mapping class names to hex colors layer: Optional CategoricalLayer to extract colors from palette figsize: Figure size (width, height) marker: Marker style for data points linewidth: Width of lines markersize: Size of markers grid: Whether to show grid legend_loc: Legend location legend_bbox: Legend bbox_to_anchor\nReturns: Tuple of (figure, axes)\n\n            \n            \n\nsource\n\n\nplot_class_area_stacked\n\ndef plot_class_area_stacked(\n    df:DataFrame, title:str='Area by Class Over Time (hectares)', colors:Optional=None, layer:Optional=None,\n    figsize:tuple=(12, 6), bar_width:float=0.7, grid:bool=True, legend_loc:str='center left',\n    legend_bbox:tuple=(1.02, 0.5)\n)-&gt;tuple:\n\nCreate a stacked bar chart showing area by class over time.\nArgs: df: DataFrame from extract_categorical title: Chart title colors: Optional dict mapping class names to hex colors layer: Optional CategoricalLayer to extract colors from palette figsize: Figure size (width, height) bar_width: Width of bars grid: Whether to show grid legend_loc: Legend location legend_bbox: Legend bbox_to_anchor\nReturns: Tuple of (figure, axes)",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#interactive-charts-plotly",
+    "href": "charts.html#interactive-charts-plotly",
+    "title": "charts",
+    "section": "Interactive Charts (Plotly)",
+    "text": "Interactive Charts (Plotly)\nInteractive visualizations with hover info, zoom, and pan.\n\n            \n            \n\nsource\n\nplot_class_distribution_interactive\n\ndef plot_class_distribution_interactive(\n    df:DataFrame, title:str='Class Distribution Over Time (%)', colors:Optional=None, layer:Optional=None,\n    height:int=500, width:Optional=None, line_width:float=2, marker_size:float=8\n)-&gt;go.Figure:\n\nCreate an interactive line chart showing class distribution percentages.\nArgs: df: DataFrame from extract_categorical title: Chart title colors: Optional dict mapping class names to hex colors layer: Optional CategoricalLayer to extract colors from palette height: Chart height in pixels width: Chart width in pixels (None for auto) line_width: Width of lines marker_size: Size of markers\nReturns: Plotly Figure object\n\n            \n            \n\nsource\n\n\nplot_class_area_stacked_interactive\n\ndef plot_class_area_stacked_interactive(\n    df:DataFrame, title:str='Area by Class Over Time (hectares)', colors:Optional=None, layer:Optional=None,\n    height:int=500, width:Optional=None\n)-&gt;go.Figure:\n\nCreate an interactive stacked bar chart showing area by class.\nArgs: df: DataFrame from extract_categorical title: Chart title colors: Optional dict mapping class names to hex colors layer: Optional CategoricalLayer to extract colors from palette height: Chart height in pixels width: Chart width in pixels (None for auto)\nReturns: Plotly Figure object",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#convenience-functions",
+    "href": "charts.html#convenience-functions",
+    "title": "charts",
+    "section": "Convenience Functions",
+    "text": "Convenience Functions\nHigh-level functions for common use cases.\n\n            \n            \n\nsource\n\nplot_extraction\n\ndef plot_extraction(\n    df:DataFrame, chart_type:str='distribution', interactive:bool=False, layer:Optional=None, kwargs:VAR_KEYWORD\n):\n\nUniversal plotting function for extraction results.\nArgs: df: DataFrame from extract_categorical chart_type: ‘distribution’ (line %) or ‘area’ (stacked bar) interactive: If True, use plotly; if False, use matplotlib layer: Optional CategoricalLayer to extract colors from palette **kwargs: Additional arguments passed to the underlying plot function\nReturns: Figure object (matplotlib or plotly)",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#aggregated-class-charts",
+    "href": "charts.html#aggregated-class-charts",
+    "title": "charts",
+    "section": "Aggregated Class Charts",
+    "text": "Aggregated Class Charts\nSometimes multiple classes represent components of the same concept. For example, “Secondary Vegetation” + “Secondary Veg Regrowth” together represent total restoration progress.\nThe plot_aggregated function lets you define aggregates and visualize both components (dashed) and totals (solid).\n\n            \n            \n\nsource\n\nplot_aggregated\n\ndef plot_aggregated(\n    df:DataFrame, aggregates:dict, title:str='Aggregated Class Distribution', colors:Optional=None,\n    layer:Optional=None, show_components:bool=True, vlines:Optional=None, vline_color:str='#666666',\n    figsize:tuple=(12, 6), linewidth:float=2, marker:str='o', markersize:float=6, grid:bool=True,\n    legend_loc:str='center left', legend_bbox:tuple=(1.02, 0.5)\n)-&gt;tuple:\n\nPlot aggregated classes with components shown as dashed lines.\nArgs: df: DataFrame from extract_categorical aggregates: Dict mapping aggregate name to list of component class names. Example: {‘total_restoration’: [‘Secondary Vegetation’, ‘Secondary Veg Regrowth’]} title: Chart title colors: Optional dict mapping class/aggregate names to hex colors layer: Optional CategoricalLayer to extract colors from palette show_components: If True, show component classes as dashed lines vlines: Optional dict mapping years to labels for vertical reference lines. Example: {2012: ‘Restoration Start’} vline_color: Color for vertical lines (default gray) figsize: Figure size (width, height) linewidth: Width of lines marker: Marker style markersize: Size of markers grid: Whether to show grid legend_loc: Legend location legend_bbox: Legend bbox_to_anchor\nReturns: Tuple of (figure, axes)\n\n            \n            \n\nsource\n\n\nplot_aggregated_interactive\n\ndef plot_aggregated_interactive(\n    df:DataFrame, aggregates:dict, title:str='Aggregated Class Distribution', colors:Optional=None,\n    layer:Optional=None, show_components:bool=True, vlines:Optional=None, vline_color:str='#666666', height:int=500,\n    width:Optional=None, line_width:float=2, marker_size:float=8\n)-&gt;go.Figure:\n\nCreate an interactive aggregated class chart with plotly.\nArgs: df: DataFrame from extract_categorical aggregates: Dict mapping aggregate name to list of component class names. title: Chart title colors: Optional dict mapping class/aggregate names to hex colors layer: Optional CategoricalLayer to extract colors from palette show_components: If True, show component classes as dashed lines vlines: Optional dict mapping years to labels for vertical reference lines. Example: {2012: ‘Restoration Start’} vline_color: Color for vertical lines (default gray) height: Chart height in pixels width: Chart width in pixels (None for auto) line_width: Width of lines marker_size: Size of markers\nReturns: Plotly Figure object",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "charts.html#example-usage",
+    "href": "charts.html#example-usage",
+    "title": "charts",
+    "section": "Example Usage",
+    "text": "Example Usage\nLet’s demonstrate the charts with real data from the DEFREG dataset.\n\n# Initialize Earth Engine\nimport ee\nee.Authenticate()\nee.Initialize(project='hs-brazilreforestation')\n\n/Users/alice/.local/share/mamba/envs/gee-polygons/lib/python3.10/site-packages/google/api_core/_python_version_support.py:275: FutureWarning: You are using a Python version (3.10.19) which Google will stop supporting in new releases of google.api_core once it reaches its end of life (2026-10-04). Please upgrade to the latest Python version, or at least Python 3.11, to continue receiving updates for google.api_core past that date.\n  warnings.warn(message, FutureWarning)\n\n\n\n# Load a site and extract data\nfrom gee_polygons.site import load_sites\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_DEFREG\n\nsites = load_sites('../data/restoration_sites_subset.geojson')\nsite = sites[8]\nprint(site)\n\n# Extract DEFREG data for multiple years\ndf = site.extract_categorical(MAPBIOMAS_DEFREG, years=range(2010, 2017))\ndf.head(10)\n\n\n            \n            \n\n\nSite(id=9368, start_year=2012)\n\n\n\n\n\n\n\n\n\nsite_id\nyear\nclass_value\ncount\narea_ha\nclass_name\n\n\n\n\n0\n9368\n2010\n1\n149.090196\n13.418118\nAnthropic\n\n\n1\n9368\n2010\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n2\n9368\n2010\n3\n4.501961\n0.405176\nSecondary Vegetation\n\n\n3\n9368\n2010\n5\n2.352941\n0.211765\nSecondary Veg Regrowth\n\n\n4\n9368\n2011\n1\n147.211765\n13.249059\nAnthropic\n\n\n5\n9368\n2011\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n6\n9368\n2011\n3\n6.854902\n0.616941\nSecondary Vegetation\n\n\n7\n9368\n2011\n5\n1.878431\n0.169059\nSecondary Veg Regrowth\n\n\n8\n9368\n2012\n1\n147.211765\n13.249059\nAnthropic\n\n\n9\n9368\n2012\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n\n\n\n\n\n\nStatic Charts (Matplotlib)\n\n# Line chart: Class distribution over time (%)\n# Pass the layer to automatically use MapBiomas DEFREG colors\nfig, ax = plot_class_distribution(df, layer=MAPBIOMAS_DEFREG)\nplt.show()\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Stacked bar chart: Area by class over time\nfig, ax = plot_class_area_stacked(df, layer=MAPBIOMAS_DEFREG)\nplt.show()\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n\nInteractive Charts (Plotly)\n\n# Interactive line chart\nfig = plot_class_distribution_interactive(df, layer=MAPBIOMAS_DEFREG)\nfig.show()\n\n\n            \n            \n\n\nUnable to display output for mime type(s): application/vnd.plotly.v1+json\n\n\n\n# Interactive stacked bar chart\nfig = plot_class_area_stacked_interactive(df, layer=MAPBIOMAS_DEFREG)\nfig.show()\n\n\n            \n            \n\n\nUnable to display output for mime type(s): application/vnd.plotly.v1+json\n\n\n\n\nUsing the Convenience Function\n\n# Quick way to generate any chart type\n# The layer parameter provides automatic coloring\nplot_extraction(df, chart_type='distribution', interactive=True, layer=MAPBIOMAS_DEFREG)\n\n\n            \n            \n\n\nUnable to display output for mime type(s): application/vnd.plotly.v1+json\n\n\n\n\nAggregated Charts\nCombine multiple classes into a single metric while showing components:\n\n# Define aggregates: which classes combine into which totals\naggregates = {\n    'Total Restoration': ['Secondary Vegetation', 'Secondary Veg Regrowth']\n}\n\n# Custom colors: green shades for the restoration theme\nrestoration_colors = {\n    'Total Restoration': '#2d6a4f',      # dark green for total\n    'Secondary Vegetation': '#52b788',   # medium green\n    'Secondary Veg Regrowth': '#95d5b2', # light green\n}\n\n# Mark important events with vertical lines\n# (site.start_year is 2012 for this site)\nevents = {\n    2012: 'Restoration Start'\n}\n\nfig, ax = plot_aggregated(\n    df,\n    aggregates=aggregates,\n    colors=restoration_colors,\n    vlines=events,\n    title='Restoration Progress'\n)\nplt.show()\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Interactive version with vertical line\nfig = plot_aggregated_interactive(\n    df,\n    aggregates=aggregates,\n    colors=restoration_colors,\n    vlines=events,\n    title='Restoration Progress'\n)\nfig.show()\n\n\n            \n            \n\n\nUnable to display output for mime type(s): application/vnd.plotly.v1+json",
+    "crumbs": [
+      "charts"
+    ]
+  },
+  {
+    "objectID": "extract.html",
+    "href": "extract.html",
+    "title": "extract",
+    "section": "",
+    "text": "The heart of gee-polygons is one powerful primitive:\nsite.extract_categorical(layer, years=[2018, 2019, 2020])\nGiven: - A polygon (Site) - A categorical raster descriptor (CategoricalLayer) - A list of years\nIt returns a tidy DataFrame with pixel counts and areas per class, per year.\nThis function knows nothing about MapBiomas, deforestation, or Brazil. It’s pure geometry + categorical values + time.\n\n            \n            \n\nsource\n\n\n\ndef extract_categorical(\n    layer:CategoricalLayer, years:list, max_pixels:int=1000000000\n)-&gt;DataFrame:\n\nExtract per-year pixel counts and areas from a categorical raster.\nSupports two temporal modes: - ‘band’: Each year is a band in a single Image (e.g., MapBiomas) - ‘collection’: An ImageCollection filtered by date (e.g., Dynamic World)\nArgs: layer: A CategoricalLayer describing the data source years: List of years to extract max_pixels: Maximum pixels for reduction (default 1e9)\nReturns: A tidy DataFrame with columns: - site_id: Site identifier - year: Year of observation - class_value: Integer class value - count: Pixel count - area_ha: Area in hectares - class_name: Human-readable name (if available in layer)",
+    "crumbs": [
+      "extract"
+    ]
+  },
+  {
+    "objectID": "extract.html#the-core-primitive",
+    "href": "extract.html#the-core-primitive",
+    "title": "extract",
+    "section": "",
+    "text": "The heart of gee-polygons is one powerful primitive:\nsite.extract_categorical(layer, years=[2018, 2019, 2020])\nGiven: - A polygon (Site) - A categorical raster descriptor (CategoricalLayer) - A list of years\nIt returns a tidy DataFrame with pixel counts and areas per class, per year.\nThis function knows nothing about MapBiomas, deforestation, or Brazil. It’s pure geometry + categorical values + time.\n\n            \n            \n\nsource\n\n\n\ndef extract_categorical(\n    layer:CategoricalLayer, years:list, max_pixels:int=1000000000\n)-&gt;DataFrame:\n\nExtract per-year pixel counts and areas from a categorical raster.\nSupports two temporal modes: - ‘band’: Each year is a band in a single Image (e.g., MapBiomas) - ‘collection’: An ImageCollection filtered by date (e.g., Dynamic World)\nArgs: layer: A CategoricalLayer describing the data source years: List of years to extract max_pixels: Maximum pixels for reduction (default 1e9)\nReturns: A tidy DataFrame with columns: - site_id: Site identifier - year: Year of observation - class_value: Integer class value - count: Pixel count - area_ha: Area in hectares - class_name: Human-readable name (if available in layer)",
+    "crumbs": [
+      "extract"
+    ]
+  },
+  {
+    "objectID": "extract.html#example-usage",
+    "href": "extract.html#example-usage",
+    "title": "extract",
+    "section": "Example Usage",
+    "text": "Example Usage\nLet’s test with a simple example. First, we need to initialize GEE and load a site.\n\n# Initialize Earth Engine\nee.Authenticate()\nee.Initialize(project='hs-brazilreforestation')\n\n\n            \n            \n\n\n\nfrom gee_polygons.site import load_sites\nsites = load_sites('../data/restoration_sites_subset.geojson')\nsite = sites[8]\nprint(site)\n\n\n            \n            \n\n\nSite(id=9368, start_year=2012)\n\n\n\n# Define a layer (or use a preset from gee_polygons.datasets)\nlayer = CategoricalLayer(\n     asset_id='projects/mapbiomas-public/assets/brazil/lulc/collection10/mapbiomas_brazil_collection10_coverage_v2',\n     band_pattern='classification_{}',\n     scale=30\n)\n\n# Extract stats\ndf = site.extract_categorical(layer, years=[2012, 2013, 2014, 2015])\ndf.head(10)\n\n\n            \n            \n\n\n\n\n\n\n\n\n\nsite_id\nyear\nclass_value\ncount\narea_ha\nclass_name\n\n\n\n\n0\n9368\n2012\n21\n147.211765\n13.249059\nNone\n\n\n1\n9368\n2012\n3\n9.196078\n0.827647\nNone\n\n\n2\n9368\n2013\n21\n99.458824\n8.951294\nNone\n\n\n3\n9368\n2013\n3\n56.949020\n5.125412\nNone\n\n\n4\n9368\n2014\n21\n86.427451\n7.778471\nNone\n\n\n5\n9368\n2014\n3\n69.980392\n6.298235\nNone\n\n\n6\n9368\n2015\n3\n156.407843\n14.076706\nNone\n\n\n\n\n\n\n\nThe output is always a tidy DataFrame:\n\n\n\nsite_id\nyear\nclass_value\ncount\narea_ha\nclass_name\n\n\n\n\n3107\n2020\n3\n1520\n136.8\nNone\n\n\n3107\n2020\n5\n203\n18.3\nNone\n\n\n3107\n2021\n3\n1701\n153.1\nNone\n\n\n\nIf the CategoricalLayer has a class_map, the class_name column will be populated.\nWe can also try with a pre-set dataset.\n\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_DEFREG\ndf = site.extract_categorical(MAPBIOMAS_DEFREG, years=range(2012, 2015))\ndf.head(10)\n\n\n            \n            \n\n\n\n\n\n\n\n\n\nsite_id\nyear\nclass_value\ncount\narea_ha\nclass_name\n\n\n\n\n0\n9368\n2012\n1\n147.211765\n13.249059\nAnthropic\n\n\n1\n9368\n2012\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n2\n9368\n2012\n3\n8.733333\n0.786000\nSecondary Vegetation\n\n\n3\n9368\n2013\n1\n99.458824\n8.951294\nAnthropic\n\n\n4\n9368\n2013\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n5\n9368\n2013\n3\n8.733333\n0.786000\nSecondary Vegetation\n\n\n6\n9368\n2013\n5\n47.752941\n4.297765\nSecondary Veg Regrowth\n\n\n7\n9368\n2014\n1\n86.427451\n7.778471\nAnthropic\n\n\n8\n9368\n2014\n2\n0.462745\n0.041647\nPrimary Vegetation\n\n\n9\n9368\n2014\n3\n56.486275\n5.083765\nSecondary Vegetation",
+    "crumbs": [
+      "extract"
+    ]
+  },
+  {
+    "objectID": "extract.html#visualizing-layers",
+    "href": "extract.html#visualizing-layers",
+    "title": "extract",
+    "section": "Visualizing Layers",
+    "text": "Visualizing Layers\nBefore extracting stats, it’s useful to visually verify the data. The show_layer method displays the categorical raster for specified years with the site polygon overlaid.\n\n            \n            \n\nsource\n\nSite.show_layer\n\ndef show_layer(\n    layer:CategoricalLayer, years:list, zoom:int=14, basemap:str='SATELLITE', site_color:str='blue',\n    buffer_m:Optional=None\n)-&gt;Map:\n\nDisplay a categorical layer for multiple years with the site overlaid.\nSupports both temporal modes: - ‘band’: Shows each year’s band from a single Image - ‘collection’: Shows mode-reduced composite per year\nArgs: layer: A CategoricalLayer to visualize years: List of years to add as layers zoom: Initial zoom level (default 14) basemap: Basemap type (default ‘SATELLITE’) site_color: Color for site boundary (default ‘blue’) buffer_m: Optional buffer around site for clipping display\nReturns: A geemap.Map with yearly classification layers\n\n# Example: Visualize the layer with a buffer around the site\nsite.show_layer(MAPBIOMAS_DEFREG, years=range(2010, 2018), buffer_m=500)",
+    "crumbs": [
+      "extract"
+    ]
+  },
+  {
+    "objectID": "extract.html#continuous-extraction",
+    "href": "extract.html#continuous-extraction",
+    "title": "extract",
+    "section": "Continuous Extraction",
+    "text": "Continuous Extraction\nFor continuous data (NDVI, EVI, temperature, etc.), use extract_continuous. It supports: - Multi-band extraction: Get multiple bands in one call - Preprocessing hooks: Dataset-specific logic (cloud masking, index computation) via layer.preprocess - Temporal aggregation: 'all' (per-image), 'monthly', or 'yearly'\nThe function is completely dataset-agnostic — all dataset-specific logic lives in the preprocess function defined in the layer.\n\n            \n            \n\nsource\n\nSite.extract_continuous\n\ndef extract_continuous(\n    layer:ContinuousLayer, start_date:str, end_date:str, reducer:Literal='mean', frequency:Literal='all',\n    max_pixels:int=1000000000\n)-&gt;DataFrame:\n\nExtract continuous raster statistics over time for a site.\nCompletely dataset-agnostic. All preprocessing (cloud masking, index computation, scaling) is handled by the layer’s preprocess function.\nArgs: layer: ContinuousLayer with bands to extract and optional preprocess start_date: Start date (YYYY-MM-DD) end_date: End date (YYYY-MM-DD) reducer: Spatial aggregation (‘mean’, ‘median’, ‘min’, ‘max’) frequency: Temporal output (‘all’, ‘monthly’, ‘yearly’) max_pixels: Maximum pixels for reduction\nReturns: DataFrame with columns: site_id, date/year/month, and one column per band\n\n\nExample: Continuous Extraction\nUsing Sentinel-2 NDVI/EVI with preprocessing defined in the dataset module:\n\n# Example with Sentinel-2 NDVI/EVI (requires updated datasets/sentinel2.py)\nfrom gee_polygons.datasets.sentinel2 import SENTINEL2_NDVI_EVI\n\n# Yearly NDVI/EVI summary\ndf = site.extract_continuous(\n    SENTINEL2_NDVI_EVI,\n    start_date='2018-01-01',\n    end_date='2020-12-31',\n    reducer='median',\n    frequency='all'\n)\ndf.head()\n\n\n            \n            \n\n\n\n\n\n\n\n\n\nsite_id\ndate\nNDVI\nEVI\n\n\n\n\n0\n9368\n2018-01-09\n0.806691\n0.591811\n\n\n1\n9368\n2018-02-08\n0.884718\n0.589342\n\n\n2\n9368\n2018-12-15\n0.885487\n0.596724\n\n\n3\n9368\n2018-12-20\n0.870644\n0.592598\n\n\n4\n9368\n2018-12-25\n0.491157\n0.659755\n\n\n\n\n\n\n\n\ndf.head(10)\n\n\n            \n            \n\n\n\n\n\n\n\n\n\nsite_id\ndate\nNDVI\nEVI\n\n\n\n\n0\n9368\n2018-01-09\n0.806691\n0.591811\n\n\n1\n9368\n2018-02-08\n0.884718\n0.589342\n\n\n2\n9368\n2018-12-15\n0.885487\n0.596724\n\n\n3\n9368\n2018-12-20\n0.870644\n0.592598\n\n\n4\n9368\n2018-12-25\n0.491157\n0.659755\n\n\n5\n9368\n2018-12-30\n0.873436\n0.623111\n\n\n6\n9368\n2019-01-04\n0.846921\n0.589451\n\n\n7\n9368\n2019-01-09\n0.892792\n0.600742\n\n\n8\n9368\n2019-01-14\n0.893780\n0.612306\n\n\n9\n9368\n2019-01-19\n0.338589\n0.800424\n\n\n10\n9368\n2019-01-24\n0.890900\n0.611940\n\n\n11\n9368\n2019-01-29\n0.895227\n0.604959\n\n\n12\n9368\n2019-02-03\n0.852337\n0.603106\n\n\n13\n9368\n2019-02-08\n0.454743\n0.589876\n\n\n14\n9368\n2019-02-13\n-0.013164\n-0.501578\n\n\n15\n9368\n2019-02-18\n0.814663\n0.732076\n\n\n16\n9368\n2019-02-23\n0.919677\n0.455631\n\n\n17\n9368\n2019-02-28\n0.720851\n0.546486\n\n\n18\n9368\n2019-03-05\n0.801259\n0.609721\n\n\n19\n9368\n2019-03-10\n0.876676\n0.613873",
+    "crumbs": [
+      "extract"
+    ]
+  },
+  {
+    "objectID": "datasets_alpha_embeddings.html",
+    "href": "datasets_alpha_embeddings.html",
+    "title": "datasets.alpha_embeddings",
+    "section": "",
+    "text": "Alpha Earth Embeddings are 64-dimensional dense vector representations of satellite imagery produced by Google.\nKey features: - 64 embedding bands (A00-A63) - 10m resolution - Annual composites from 2017 onwards - Unit-length vectors (no scaling needed) - Captures semantic meaning from multi-sensor time-series\nImportant: Individual bands lack independent meaning. The 64 dimensions work together to encode spatial and temporal patterns. Use all bands for similarity analysis, clustering, or machine learning.\n\nsource\n\n\n\ndef get_embedding_image(\n    geometry:Geometry, year:int, bands:list=None\n)-&gt;Image:\n\nGet Alpha Earth Embedding image for a specific year.\nThe collection stores annual images, so this filters to the requested year and mosaics any tiles covering the geometry.\nArgs: geometry: Region of interest year: Year to retrieve (2017 onwards) bands: Specific bands to select (default: all 64)\nReturns: ee.Image with embedding bands\nExample: img = get_embedding_image(site.geometry, 2023) img = get_embedding_image(site.geometry, 2023, bands=[‘A01’, ‘A16’, ‘A09’])",
+    "crumbs": [
+      "datasets.alpha_embeddings"
+    ]
+  },
+  {
+    "objectID": "datasets_alpha_embeddings.html#about-alpha-earth-embeddings",
+    "href": "datasets_alpha_embeddings.html#about-alpha-earth-embeddings",
+    "title": "datasets.alpha_embeddings",
+    "section": "",
+    "text": "Alpha Earth Embeddings are 64-dimensional dense vector representations of satellite imagery produced by Google.\nKey features: - 64 embedding bands (A00-A63) - 10m resolution - Annual composites from 2017 onwards - Unit-length vectors (no scaling needed) - Captures semantic meaning from multi-sensor time-series\nImportant: Individual bands lack independent meaning. The 64 dimensions work together to encode spatial and temporal patterns. Use all bands for similarity analysis, clustering, or machine learning.\n\nsource\n\n\n\ndef get_embedding_image(\n    geometry:Geometry, year:int, bands:list=None\n)-&gt;Image:\n\nGet Alpha Earth Embedding image for a specific year.\nThe collection stores annual images, so this filters to the requested year and mosaics any tiles covering the geometry.\nArgs: geometry: Region of interest year: Year to retrieve (2017 onwards) bands: Specific bands to select (default: all 64)\nReturns: ee.Image with embedding bands\nExample: img = get_embedding_image(site.geometry, 2023) img = get_embedding_image(site.geometry, 2023, bands=[‘A01’, ‘A16’, ‘A09’])",
+    "crumbs": [
+      "datasets.alpha_embeddings"
+    ]
+  },
+  {
+    "objectID": "datasets_alpha_embeddings.html#usage",
+    "href": "datasets_alpha_embeddings.html#usage",
+    "title": "datasets.alpha_embeddings",
+    "section": "Usage",
+    "text": "Usage\n\nExtracting Embedding Values\nUse extract_continuous to get the mean embedding values for a polygon:\n\nimport ee\nee.Authenticate()\nee.Initialize(project='hs-brazilreforestation')\n\n\n            \n            \n\n\n\nfrom gee_polygons.site import load_sites\n\nsites = load_sites('../data/restoration_sites_subset.geojson')\nsite = sites[0]\nprint(site)\n\n\n            \n            \n\n\nSite(id=3107, start_year=2016)\n\n\n\n# Extract embeddings for a year range\ndf = site.extract_continuous(\n    ALPHA_EMBEDDINGS,\n    start_date='2020-01-01',\n    end_date='2023-12-31',\n    reducer='mean',\n    frequency='yearly'\n)\n\nprint(f\"Shape: {df.shape}\")\nprint(f\"Columns: site_id, year, A00-A63\")\ndf.head()\n\n\n            \n            \n\n\nShape: (4, 66)\nColumns: site_id, year, A00-A63\n\n\n\n\n\n\n\n\n\nsite_id\nyear\nA00\nA01\nA02\nA03\nA04\nA05\nA06\nA07\n...\nA54\nA55\nA56\nA57\nA58\nA59\nA60\nA61\nA62\nA63\n\n\n\n\n0\n3107\n2020\n0.051429\n0.103414\n-0.159193\n-0.128978\n0.019833\n0.130146\n0.116706\n0.241309\n...\n-0.006464\n0.123972\n0.067628\n-0.031071\n0.082864\n0.035164\n0.072382\n-0.047027\n-0.017532\n-0.330571\n\n\n1\n3107\n2021\n0.079712\n0.093320\n-0.171368\n-0.113680\n0.016212\n0.120561\n0.149501\n0.259941\n...\n-0.015321\n0.116001\n0.086228\n-0.056849\n0.071019\n0.046415\n0.060030\n-0.051776\n-0.019477\n-0.331156\n\n\n2\n3107\n2022\n0.072090\n0.123538\n-0.181573\n-0.112572\n0.030015\n0.146240\n0.113321\n0.265398\n...\n-0.012064\n0.091692\n0.071432\n-0.052110\n0.108490\n0.017806\n0.062049\n-0.078349\n0.009921\n-0.345070\n\n\n3\n3107\n2023\n0.066441\n0.094494\n-0.165421\n-0.116780\n0.038526\n0.126812\n0.110835\n0.276009\n...\n0.014570\n0.084251\n0.085341\n-0.036375\n0.095532\n0.027515\n0.093615\n-0.077840\n-0.020993\n-0.327966\n\n\n\n\n4 rows × 66 columns\n\n\n\n\n# The embedding vector for a single year\nembedding_2023 = df[df['year'] == 2023][EMBEDDING_BANDS].values[0]\nprint(f\"2023 embedding shape: {embedding_2023.shape}\")\nprint(f\"First 10 values: {embedding_2023[:10]}\")\n\n\n            \n            \n\n\n2023 embedding shape: (64,)\nFirst 10 values: [ 0.0664412   0.0944937  -0.16542051 -0.1167795   0.03852644  0.12681178\n  0.11083481  0.27600854 -0.03367958 -0.02094349]\n\n\n\n\nVisualization\nSince embeddings have 64 dimensions, we visualize by selecting 3 bands for RGB. Different band combinations reveal different patterns:\n\nfrom gee_polygons.visualize import render_image\n\n# Get embedding image for visualization\nemb_image = get_embedding_image(site.geometry, 2023)\n\n# Render with default band combination\nimg = render_image(\n    image=emb_image,\n    region=site.geometry.buffer(500).bounds(),\n    vis_params=EMBEDDING_VIS_DEFAULT,\n    dimensions=400,\n    boundary=site.geometry,\n    label='Embeddings 2023 (A01/A16/A09)'\n)\nimg\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Try different band combinations\nfrom gee_polygons.visualize import export_frames_as_strip\n\nband_combos = [\n    (['A01', 'A16', 'A09'], 'Default'),\n    (['A00', 'A32', 'A63'], 'Spread'),\n    (['A05', 'A25', 'A45'], 'Alt'),\n]\n\nframes = []\nfor bands, name in band_combos:\n    vis = {'min': -0.3, 'max': 0.3, 'bands': bands}\n    frame = render_image(\n        image=emb_image,\n        region=site.geometry.buffer(500).bounds(),\n        vis_params=vis,\n        dimensions=500,\n        boundary=site.geometry,\n        label=name\n    )\n    frames.append(frame)\n\nexport_frames_as_strip(frames, '../outputs/embedding_band_combos.png')\n\nfrom IPython.display import Image as IPImage\nIPImage('../outputs/embedding_band_combos.png')\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n\nTemporal Comparison\nCompare embeddings across years to see how a site changes:\n\n# Embedding timestrip 2018-2023\nfrom gee_polygons.visualize import export_frames_as_gif\n\nframes = []\nfor year in range(2018, 2025):\n    emb_image = get_embedding_image(site.geometry, year)\n    \n    frame = render_image(\n        image=emb_image,\n        region=site.geometry.buffer(500).bounds(),\n        vis_params=EMBEDDING_VIS_DEFAULT,\n        dimensions=500,\n        boundary=site.geometry,\n        label=str(year)\n    )\n    frames.append(frame)\n\n# Export as strip and GIF\nexport_frames_as_strip(frames, '../outputs/embedding_2018_2024.png')\nexport_frames_as_gif(frames, '../outputs/embedding_2018_2024.gif', duration_ms=700)\n\nIPImage('../outputs/embedding_2018_2024.png')\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n\nSimilarity Analysis\nSince embeddings are unit vectors, you can compute cosine similarity between years:\n\nimport numpy as np\n\n# Get embeddings for multiple years\ndf = site.extract_continuous(\n    ALPHA_EMBEDDINGS,\n    start_date='2018-01-01',\n    end_date='2024-12-31',\n    reducer='mean',\n    frequency='yearly'\n)\n\n# Extract embedding vectors\nyears = df['year'].values\nembeddings = df[EMBEDDING_BANDS].values\n\n# Compute cosine similarity matrix\n# Since vectors are unit length, cosine similarity = dot product\nsimilarity_matrix = embeddings @ embeddings.T\n\nprint(\"Cosine similarity between years:\")\nimport pandas as pd\nsim_df = pd.DataFrame(similarity_matrix, index=years, columns=years)\nsim_df.round(3)\n\n\n            \n            \n\n\nCosine similarity between years:\n\n\n\n\n\n\n\n\n\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n\n\n\n\n2018\n0.920\n0.902\n0.910\n0.897\n0.883\n0.898\n0.887\n\n\n2019\n0.902\n0.920\n0.901\n0.899\n0.886\n0.903\n0.892\n\n\n2020\n0.910\n0.901\n0.921\n0.907\n0.897\n0.907\n0.895\n\n\n2021\n0.897\n0.899\n0.907\n0.923\n0.904\n0.909\n0.896\n\n\n2022\n0.883\n0.886\n0.897\n0.904\n0.906\n0.900\n0.886\n\n\n2023\n0.898\n0.903\n0.907\n0.909\n0.900\n0.919\n0.911\n\n\n2024\n0.887\n0.892\n0.895\n0.896\n0.886\n0.911\n0.917",
+    "crumbs": [
+      "datasets.alpha_embeddings"
+    ]
+  },
+  {
+    "objectID": "visualize.html",
+    "href": "visualize.html",
+    "title": "visualize",
+    "section": "",
+    "text": "A simple wrapper for GEE visualization parameters.\n\nsource\n\n\n\ndef VisParams(\n    min:Optional=None, max:Optional=None, palette:Optional=None, bands:Optional=None, gamma:Optional=None\n)-&gt;None:\n\nVisualization parameters for rendering layers.\nExamples: # For single-band continuous data (NDVI, temperature) VisParams(min=-0.2, max=0.8, palette=[‘red’, ‘yellow’, ‘green’])\n# For RGB composites\nVisParams(min=0, max=0.3, bands=['B4', 'B3', 'B2'], gamma=1.4)\n\n# For categorical data\nVisParams(min=0, max=7, palette=['#111', '#ccc', '#0f0', ...])",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#visualization-parameters",
+    "href": "visualize.html#visualization-parameters",
+    "title": "visualize",
+    "section": "",
+    "text": "A simple wrapper for GEE visualization parameters.\n\nsource\n\n\n\ndef VisParams(\n    min:Optional=None, max:Optional=None, palette:Optional=None, bands:Optional=None, gamma:Optional=None\n)-&gt;None:\n\nVisualization parameters for rendering layers.\nExamples: # For single-band continuous data (NDVI, temperature) VisParams(min=-0.2, max=0.8, palette=[‘red’, ‘yellow’, ‘green’])\n# For RGB composites\nVisParams(min=0, max=0.3, bands=['B4', 'B3', 'B2'], gamma=1.4)\n\n# For categorical data\nVisParams(min=0, max=7, palette=['#111', '#ccc', '#0f0', ...])",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#core-rendering-functions",
+    "href": "visualize.html#core-rendering-functions",
+    "title": "visualize",
+    "section": "Core Rendering Functions",
+    "text": "Core Rendering Functions\nThese are the building blocks - they work with any ee.Image.\n\nsource\n\nrender_thumbnail\n\ndef render_thumbnail(\n    image:Image, region:Geometry, vis_params:dict, dimensions:int=512, format:str='png'\n)-&gt;bytes:\n\nRender an ee.Image to thumbnail bytes.\nArgs: image: The image to render region: Region to render vis_params: Visualization parameters dict dimensions: Max dimension in pixels format: Image format (‘png’ or ‘jpg’)\nReturns: Image bytes\n\nsource\n\n\nadd_label\n\ndef add_label(\n    img:Image, label:str, position:Literal='bottom-left', font_size:int=16, text_color:str='white',\n    bg_color:str='black', padding:int=5\n)-&gt;Image:\n\nAdd a text label to an image.",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#generic-image-rendering",
+    "href": "visualize.html#generic-image-rendering",
+    "title": "visualize",
+    "section": "Generic Image Rendering",
+    "text": "Generic Image Rendering\nThe core render_image function works with any ee.Image.\n\nsource\n\nrender_image\n\ndef render_image(\n    image:Image, region:Geometry, vis_params:Union, dimensions:int=512, boundary:Optional=None,\n    boundary_color:str='#FFFFFF', boundary_width:int=2, label:Optional=None, label_position:str='bottom-left'\n)-&gt;Image:\n\nRender any ee.Image to a PIL Image.\nThis is the core generic rendering function. It works with any ee.Image from any source (Sentinel, MODIS, Landsat, custom computations, etc.).\nArgs: image: Any ee.Image to visualize region: Region to render (usually site.geometry.buffer(n).bounds()) vis_params: Visualization parameters (VisParams or dict) dimensions: Image size in pixels boundary: Optional geometry to overlay as boundary line boundary_color: Color for boundary line boundary_width: Width of boundary line label: Optional text label label_position: Position for label\nReturns: PIL Image\nExample: # Get any ee.Image from any source image = ee.Image(‘USGS/SRTMGL1_003’) # elevation\n# Render it\npil_img = render_image(\n    image=image,\n    region=site.geometry.buffer(1000).bounds(),\n    vis_params={'min': 0, 'max': 3000, 'palette': ['green', 'yellow', 'brown']},\n    boundary=site.geometry,\n    label='Elevation'\n)",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#layer-based-rendering",
+    "href": "visualize.html#layer-based-rendering",
+    "title": "visualize",
+    "section": "Layer-Based Rendering",
+    "text": "Layer-Based Rendering\nConvenience functions for rendering CategoricalLayer and ContinuousLayer objects.\n\nsource\n\nget_image_for_layer\n\ndef get_image_for_layer(\n    layer:Union, geometry:Geometry, year:Optional=None, date_range:Optional=None, reducer:str='median'\n)-&gt;Image:\n\nGet an ee.Image from a CategoricalLayer or ContinuousLayer.\n\nsource\n\n\nget_vis_params_from_layer\n\ndef get_vis_params_from_layer(\n    layer:CategoricalLayer\n)-&gt;dict:\n\nExtract visualization params from a CategoricalLayer’s palette.\n\nsource\n\n\nrender_site_layer\n\ndef render_site_layer(\n    site:Site, layer:Union, year:Optional=None, date_range:Optional=None, vis_params:Union=None, buffer_m:float=500,\n    dimensions:int=512, show_boundary:bool=True, boundary_color:str='#FFFFFF', boundary_width:int=2,\n    label:Optional=None, label_position:str='bottom-left'\n)-&gt;Image:\n\nRender a CategoricalLayer or ContinuousLayer for a site.\nThis is a convenience wrapper around render_image() for Layer objects.",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#generic-export-functions",
+    "href": "visualize.html#generic-export-functions",
+    "title": "visualize",
+    "section": "Generic Export Functions",
+    "text": "Generic Export Functions\nThese work with any rendering function via a “frame generator” pattern.\n\nsource\n\nexport_frames_as_strip\n\ndef export_frames_as_strip(\n    frames:list, output_path:Union, orientation:Literal='horizontal', spacing:int=2, background_color:str='#000000'\n)-&gt;Path:\n\nExport a list of PIL Images as a strip (side by side).\nArgs: frames: List of PIL Images (should be same size) output_path: Output file path orientation: ‘horizontal’ or ‘vertical’ spacing: Pixels between tiles background_color: Background color\nReturns: Path to saved file\n\nsource\n\n\nexport_frames_as_gif\n\ndef export_frames_as_gif(\n    frames:list, output_path:Union, duration_ms:int=500, loop:bool=True\n)-&gt;Path:\n\nExport a list of PIL Images as animated GIF.\nArgs: frames: List of PIL Images output_path: Output file path duration_ms: Frame duration in milliseconds loop: Whether to loop\nReturns: Path to saved file",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#high-level-export-functions",
+    "href": "visualize.html#high-level-export-functions",
+    "title": "visualize",
+    "section": "High-Level Export Functions",
+    "text": "High-Level Export Functions\nConvenient wrappers for common use cases with Layer objects.\n\nsource\n\nexport_layer_timestrip\n\ndef export_layer_timestrip(\n    site:Site, layer:Union, output_path:Union, years:list, vis_params:Union=None, buffer_m:float=500,\n    tile_size:int=256, show_boundary:bool=True, boundary_color:str='#FFFFFF', add_labels:bool=True,\n    orientation:Literal='horizontal', spacing:int=2\n)-&gt;Path:\n\nExport a Layer time series as timestrip.\n\nsource\n\n\nexport_layer_gif\n\ndef export_layer_gif(\n    site:Site, layer:Union, output_path:Union, years:list, vis_params:Union=None, buffer_m:float=500,\n    dimensions:int=512, show_boundary:bool=True, boundary_color:str='#FFFFFF', duration_ms:int=500,\n    add_labels:bool=True\n)-&gt;Path:\n\nExport a Layer time series as animated GIF.",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "visualize.html#example-usage",
+    "href": "visualize.html#example-usage",
+    "title": "visualize",
+    "section": "Example Usage",
+    "text": "Example Usage\n\nimport ee\nee.Authenticate()\nee.Initialize(project='hs-brazilreforestation')\n\n\n            \n            \n\n\n\nfrom gee_polygons.site import load_sites\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_DEFREG\n\nsites = load_sites('../data/restoration_sites_subset.geojson')\nsite = sites[8]\nprint(site)\n\n\n            \n            \n\n\nSite(id=9368, start_year=2012)\n\n\n\nUsing Layer objects (CategoricalLayer, ContinuousLayer)\n\n# Render a categorical layer\nimg = render_site_layer(\n    site=site,\n    layer=MAPBIOMAS_DEFREG,\n    year=2015,\n    buffer_m=500,\n    dimensions=400,\n    label='2015'\n)\n\n# Save single frame as PNG\nimg.save('../outputs/defreg_2015.png')\nimg\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Export as timestrip (PNG)\nexport_layer_timestrip(\n    site=site,\n    layer=MAPBIOMAS_DEFREG,\n    output_path='../outputs/defreg_timestrip.png',\n    years=[2010, 2012, 2014, 2016, 2018, 2020],\n    buffer_m=500,\n    tile_size=200\n)\n\n# Export as animated GIF\nexport_layer_gif(\n    site=site,\n    layer=MAPBIOMAS_DEFREG,\n    output_path='../outputs/defreg_timelapse.gif',\n    years=range(2010, 2021),\n    buffer_m=500,\n    dimensions=300,\n    duration_ms=600\n)\n\nfrom IPython.display import Image as IPImage\nIPImage('../outputs/defreg_timestrip.png')\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n\nUsing generic render_image with any ee.Image\nFor custom imagery or datasets not wrapped in Layer objects:\n\nsite = sites[0]\n\n\n            \n            \n\n\n\n# Example: Render elevation data\nelevation = ee.Image('USGS/SRTMGL1_003')\n\nimg = render_image(\n    image=elevation,\n    region=site.geometry.buffer(2000).bounds(),\n    vis_params={'min': 0, 'max': 500, 'palette': ['#0d0887', '#7e03a8', '#cc4778', '#f89540', '#f0f921']},\n    dimensions=400,\n    boundary=site.geometry,\n    label='Elevation (m)'\n)\nimg\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Example: Sentinel-2 using the dataset helper\nfrom gee_polygons.datasets.sentinel2 import get_sentinel_composite, SENTINEL_VIS\n\ns2_image = get_sentinel_composite(\n    geometry=site.geometry,\n    date_range=('2020-06-01', '2020-08-31')\n)\n\nimg = render_image(\n    image=s2_image,\n    region=site.geometry.buffer(500).bounds(),\n    vis_params=SENTINEL_VIS,\n    dimensions=400,\n    boundary=site.geometry,\n    label='Sentinel-2 2020'\n)\nimg\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n\nSentinel-2 Timestrip (2018-2024)\nCreate a side-by-side comparison of dry season Sentinel-2 composites across multiple years.\n\n# Sentinel-2 timestrip: dry season composites 2018-2024\nfrom gee_polygons.datasets.sentinel2 import get_sentinel_composite, SENTINEL_VIS\n\nframes = []\nfor year in range(2018, 2025):\n    # Get dry season composite (June-August)\n    s2_image = get_sentinel_composite(\n        geometry=site.geometry,\n        date_range=(f'{year}-06-01', f'{year}-08-31'),\n        cloud_pct=20\n    )\n    \n    # Render to PIL Image with label\n    frame = render_image(\n        image=s2_image,\n        region=site.geometry.buffer(500).bounds(),\n        vis_params=SENTINEL_VIS,\n        dimensions=200,\n        boundary=site.geometry,\n        label=str(year)\n    )\n    frames.append(frame)\n\n# Export as horizontal strip\nexport_frames_as_strip(frames, '../outputs/sentinel_2018_2024.png')\n\nfrom IPython.display import Image as IPImage\nIPImage('../outputs/sentinel_2018_2024.png')\n\n\n            \n            \n\n\n\n\n\n\n\n\n\n\n# Also export as animated GIF\nexport_frames_as_gif(frames, '../outputs/sentinel_2018_2024.gif', duration_ms=700)\n\n\n            \n            \n\n\nPath('../outputs/sentinel_2018_2024.gif')",
+    "crumbs": [
+      "visualize"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "gee-polygons",
+    "section": "",
+    "text": "Install latest from the GitHub repository:\n$ pip install git+https://github.com/aliceheiman/gee-polygons.git\nor from conda\n$ conda install -c aliceheiman gee_polygons\nor from pypi\n$ pip install gee_polygons\n\n\n\nDocumentation can be found hosted on this GitHub repository’s pages. Additionally you can find package manager specific guidelines on conda and pypi respectively.",
+    "crumbs": [
+      "gee-polygons"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "gee-polygons",
+    "section": "",
+    "text": "Install latest from the GitHub repository:\n$ pip install git+https://github.com/aliceheiman/gee-polygons.git\nor from conda\n$ conda install -c aliceheiman gee_polygons\nor from pypi\n$ pip install gee_polygons\n\n\n\nDocumentation can be found hosted on this GitHub repository’s pages. Additionally you can find package manager specific guidelines on conda and pypi respectively.",
+    "crumbs": [
+      "gee-polygons"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "gee-polygons",
+    "section": "How to use",
+    "text": "How to use\n\nInitialize Earth Engine\nimport ee\nee.Authenticate()\nee.Initialize(project=\"your-project-id\")\n\n\nLoad sites from GeoJSON\nfrom gee_polygons import load_sites, Site\n\n# Load all sites from a GeoJSON file\nsites = load_sites('path/to/sites.geojson')\nprint(f\"Loaded {len(sites)} sites\")\n\n# Explore a single site\nsite = sites[0]\nprint(f\"Site ID: {site.site_id}\")\nprint(f\"Area: {site.area_ha:.2f} ha\")\nprint(f\"Start year: {site.start_year}\")\n\n\nLoad and filter with GeoDataFrame\nFor large datasets, load into a GeoDataFrame first for fast filtering:\nimport geopandas as gpd\nfrom gee_polygons import sites_from_geodataframe\n\n# Load into GeoDataFrame\ngdf = gpd.read_file('path/to/sites.geojson')\n\n# Filter and sort using pandas (fast, in-memory)\nfiltered = gdf[gdf['area_ha'] &gt; 10].sort_values('start_year')\n\n# Convert only filtered sites to Site objects\nsites = sites_from_geodataframe(filtered)\n\n\nExample use of dataset\nfrom gee_polygons import SiteCollection\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_LULC\n\n# Load sites as a collection\ncollection = SiteCollection.from_geojson('path/to/sites.geojson')\n\n# Extract categorical land cover data\nresult = collection.extract_categorical(\n    layer=MAPBIOMAS_LULC,\n    years=range(2010, 2024)\n)\n\n# Access results as a DataFrame\ndf = result.data\nprint(f\"Extracted {len(df)} records\")",
+    "crumbs": [
+      "gee-polygons"
+    ]
+  },
+  {
+    "objectID": "index.html#roadmap",
+    "href": "index.html#roadmap",
+    "title": "gee-polygons",
+    "section": "Roadmap",
+    "text": "Roadmap\nPlanned: - Verificiation of large-scale export jobs - Integration with ML workflows",
+    "crumbs": [
+      "gee-polygons"
+    ]
+  },
+  {
+    "objectID": "index.html#changelog",
+    "href": "index.html#changelog",
+    "title": "gee-polygons",
+    "section": "Changelog",
+    "text": "Changelog\n\nv0.0.4\nNew Features: - Added Site.from_geodataframe_row() to create a Site from a GeoDataFrame row - Added sites_from_geodataframe() to create Sites from a filtered/sorted GeoDataFrame - Enables workflow: load GeoJSON -&gt; GeoDataFrame -&gt; filter/sort -&gt; Sites\nImprovements: - NaN values in GeoDataFrame properties are now converted to None for Earth Engine compatibility\n\n\nv0.0.3\nNew Features: - SiteCollection for batch operations with chunking - Export to Google Drive and Cloud Storage\n\n\nv0.0.2\n\nVarious bug fixes\n\n\n\nv0.0.1\nInitial Release: - Site class for polygon-first GEE analysis - load_sites() to load sites from GeoJSON with automatic CRS detection - Pre-configured layers: MapBiomas, Dynamic World, Sentinel-2 - Categorical and continuous data extraction",
+    "crumbs": [
+      "gee-polygons"
+    ]
+  },
+  {
+    "objectID": "export.html",
+    "href": "export.html",
+    "title": "export",
+    "section": "",
+    "text": "Configuration for where to export results.\n\nsource\n\n\n\ndef ExportDestination(\n    type:Literal['drive', 'cloud_storage'], folder:str, file_prefix:str='extraction',\n    file_format:Literal['CSV', 'GeoJSON']='CSV'\n)-&gt;None:\n\nConfiguration for export destination.\nAttributes: type: ‘drive’ for Google Drive, ‘cloud_storage’ for GCS folder: Drive folder name or GCS bucket/prefix file_prefix: Prefix for output filenames (default ‘extraction’) file_format: Output format - ‘CSV’ or ‘GeoJSON’ (default ‘CSV’)",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "export.html#exportdestination",
+    "href": "export.html#exportdestination",
+    "title": "export",
+    "section": "",
+    "text": "Configuration for where to export results.\n\nsource\n\n\n\ndef ExportDestination(\n    type:Literal['drive', 'cloud_storage'], folder:str, file_prefix:str='extraction',\n    file_format:Literal['CSV', 'GeoJSON']='CSV'\n)-&gt;None:\n\nConfiguration for export destination.\nAttributes: type: ‘drive’ for Google Drive, ‘cloud_storage’ for GCS folder: Drive folder name or GCS bucket/prefix file_prefix: Prefix for output filenames (default ‘extraction’) file_format: Output format - ‘CSV’ or ‘GeoJSON’ (default ‘CSV’)",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "export.html#exportconfig",
+    "href": "export.html#exportconfig",
+    "title": "export",
+    "section": "ExportConfig",
+    "text": "ExportConfig\nConfiguration for export behavior.\n\nsource\n\nExportConfig\n\ndef ExportConfig(\n    chunk_size:int=50, max_concurrent:int=10, description_prefix:str='gee_polygons_export'\n)-&gt;None:\n\nConfiguration for export behavior.\nAttributes: chunk_size: Number of sites per export task (default 50) max_concurrent: Maximum concurrent tasks (default 10) description_prefix: Prefix for GEE task descriptions",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "export.html#exporttask",
+    "href": "export.html#exporttask",
+    "title": "export",
+    "section": "ExportTask",
+    "text": "ExportTask\nHandle to running or completed export tasks. Provides methods to monitor progress, wait for completion, and retrieve results.\n\nsource\n\nExportTask\n\ndef ExportTask(\n    task_ids:List[str], destination:ExportDestination, config:ExportConfig, chunk_mapping:Dict[str, tuple]=&lt;factory&gt;\n)-&gt;None:\n\nHandle to running or completed export tasks.\nProvides methods to monitor progress, wait for completion, and retrieve results information.\nAttributes: task_ids: List of GEE task IDs destination: Export destination configuration config: Export configuration used chunk_mapping: Mapping of task_id to (start_idx, end_idx) tuples",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "export.html#internal-utilities",
+    "href": "export.html#internal-utilities",
+    "title": "export",
+    "section": "Internal Utilities",
+    "text": "Internal Utilities",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "export.html#example-usage",
+    "href": "export.html#example-usage",
+    "title": "export",
+    "section": "Example Usage",
+    "text": "Example Usage\n\n# Example: Export a large collection to Google Drive\nfrom gee_polygons import SiteCollection\nfrom gee_polygons.datasets.mapbiomas import MAPBIOMAS_LULC\n\n# Load 40,000 sites in lazy mode\nsites = SiteCollection.from_geojson('all_sites.geojson', lazy=True)\n\n# Configure export\ndestination = ExportDestination(\n    type='drive',\n    folder='restoration_extractions',\n    file_prefix='lulc_2024'\n)\n\nconfig = ExportConfig(\n    chunk_size=50,      # 50 sites per task\n    max_concurrent=15   # Run 15 tasks at once\n)\n\n# Submit export (creates ~800 tasks)\ntask = sites.export_categorical(\n    layer=MAPBIOMAS_LULC,\n    years=range(2010, 2024),\n    destination=destination,\n    config=config\n)\n\nprint(f\"Submitted {len(task.task_ids)} export tasks\")\n\n# Monitor progress\ntask.wait(timeout_minutes=180)\n\n# Check results\nprint(task.summary())\nprint(task.results_info())",
+    "crumbs": [
+      "export"
+    ]
+  },
+  {
+    "objectID": "datasets_dynamicworld.html",
+    "href": "datasets_dynamicworld.html",
+    "title": "datasets.dynamicworld",
+    "section": "",
+    "text": "Dynamic World is a near-real-time 10m resolution global land cover dataset produced by Google and the World Resources Institute.\nKey features: - 10m resolution (Sentinel-2 based) - Near-real-time updates (~every 5 days) - 9 land cover classes - Available from 2015 onwards\nUnlike MapBiomas (band-per-year), Dynamic World is an ImageCollection that you filter by date.",
+    "crumbs": [
+      "datasets.dynamicworld"
+    ]
+  },
+  {
+    "objectID": "datasets_dynamicworld.html#about-dynamic-world",
+    "href": "datasets_dynamicworld.html#about-dynamic-world",
+    "title": "datasets.dynamicworld",
+    "section": "",
+    "text": "Dynamic World is a near-real-time 10m resolution global land cover dataset produced by Google and the World Resources Institute.\nKey features: - 10m resolution (Sentinel-2 based) - Near-real-time updates (~every 5 days) - 9 land cover classes - Available from 2015 onwards\nUnlike MapBiomas (band-per-year), Dynamic World is an ImageCollection that you filter by date.",
+    "crumbs": [
+      "datasets.dynamicworld"
+    ]
+  },
+  {
+    "objectID": "datasets_dynamicworld.html#usage",
+    "href": "datasets_dynamicworld.html#usage",
+    "title": "datasets.dynamicworld",
+    "section": "Usage",
+    "text": "Usage\nfrom gee_polygons.datasets.dynamicworld import DYNAMIC_WORLD\n\n# Extract land cover stats (aggregated by year)\ndf = site.extract_categorical(DYNAMIC_WORLD, years=range(2019, 2025))\nSince Dynamic World is an ImageCollection, the extractor will: 1. Filter by year 2. Compute the mode (most frequent class) across all images in that year 3. Calculate pixel counts and areas\n\nprint(DYNAMIC_WORLD)\nprint(f\"\\nClass 1: {DYNAMIC_WORLD.class_name(1)} ({DYNAMIC_WORLD.class_color(1)})\")\nprint(f\"Class 4: {DYNAMIC_WORLD.class_name(4)} ({DYNAMIC_WORLD.class_color(4)})\")",
+    "crumbs": [
+      "datasets.dynamicworld"
+    ]
+  }
+]

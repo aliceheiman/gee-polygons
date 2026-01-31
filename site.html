@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The Site class — geometry + identity for polygon-first analysis.">
+
+<title>site – gee-polygons</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-000f0825b9c55ed21d14970d810c14a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="site – gee-polygons">
+<meta property="og:description" content="The Site class — geometry + identity for polygon-first analysis.">
+<meta property="og:site_name" content="gee-polygons">
+<meta name="twitter:title" content="site – gee-polygons">
+<meta name="twitter:description" content="The Site class — geometry + identity for polygon-first analysis.">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">gee-polygons</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./site.html">site</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">gee-polygons</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./layers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./site.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">site</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./extract.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">extract</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./charts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">charts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./visualize.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">visualize</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./collection.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">collection</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./export.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">export</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./datasets_mapbiomas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">datasets.mapbiomas</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./datasets_dynamicworld.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">datasets.dynamicworld</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./datasets_sentinel2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">datasets.sentinel2</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./datasets_alpha_embeddings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">datasets.alpha_embeddings</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#site" id="toc-site" class="nav-link active" data-scroll-target="#site">Site</a>
+  <ul class="collapse">
+  <li><a href="#site-1" id="toc-site-1" class="nav-link" data-scroll-target="#site-1">Site</a></li>
+  </ul></li>
+  <li><a href="#loading-sites" id="toc-loading-sites" class="nav-link" data-scroll-target="#loading-sites">Loading Sites</a>
+  <ul class="collapse">
+  <li><a href="#load_sites" id="toc-load_sites" class="nav-link" data-scroll-target="#load_sites">load_sites</a></li>
+  <li><a href="#sites_from_geodataframe" id="toc-sites_from_geodataframe" class="nav-link" data-scroll-target="#sites_from_geodataframe">sites_from_geodataframe</a></li>
+  </ul></li>
+  <li><a href="#example-usage" id="toc-example-usage" class="nav-link" data-scroll-target="#example-usage">Example Usage</a></li>
+  <li><a href="#loading-sites-from-geodataframe" id="toc-loading-sites-from-geodataframe" class="nav-link" data-scroll-target="#loading-sites-from-geodataframe">Loading Sites from GeoDataFrame</a></li>
+  <li><a href="#visualizing-sites" id="toc-visualizing-sites" class="nav-link" data-scroll-target="#visualizing-sites">Visualizing Sites</a>
+  <ul class="collapse">
+  <li><a href="#site.show" id="toc-site.show" class="nav-link" data-scroll-target="#site.show">Site.show</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/aliceheiman/gee-polygons/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="site.html.md"><i class="bi bi-file-code"></i>CommonMark</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">site</h1>
+</div>
+
+<div>
+  <div class="description">
+    The <code>Site</code> class — geometry + identity for polygon-first analysis.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="site" class="level2">
+<h2 class="anchored" data-anchor-id="site">Site</h2>
+<p>The <a href="https://aliceheiman.github.io/gee-polygons/core.html#site"><code>Site</code></a> class is the fundamental unit of analysis in gee-polygons. It wraps a polygon geometry with temporal metadata, making it easy to extract time-series features from Google Earth Engine.</p>
+<p>A Site represents a single spatial unit (e.g., a restoration plot, conservation area, or agricultural field) that you want to analyze over time.</p>
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+<hr>
+<p><a href="https://github.com/aliceheiman/gee-polygons/blob/main/gee_polygons/core.py#L20" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="site-1" class="level3">
+<h3 class="anchored" data-anchor-id="site-1">Site</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Site(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    feature:ee.Feature, start_year:Optional[<span class="bu">int</span>]<span class="op">=</span><span class="va">None</span>, site_id:Optional[<span class="bu">str</span>]<span class="op">=</span><span class="va">None</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A polygon with temporal context for GEE analysis.</em></p>
+<p>The Site class wraps an ee.Feature with convenient accessors for common properties like start_year and area, plus helper methods for temporal analysis.</p>
+</section>
+</section>
+<section id="loading-sites" class="level2">
+<h2 class="anchored" data-anchor-id="loading-sites">Loading Sites</h2>
+<p>Helper functions to load sites from common formats.</p>
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+<hr>
+<p><a href="https://github.com/aliceheiman/gee-polygons/blob/main/gee_polygons/core.py#L177" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="load_sites" class="level3">
+<h3 class="anchored" data-anchor-id="load_sites">load_sites</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_sites(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    path:Union[<span class="bu">str</span>, Path], source_crs:Optional[<span class="bu">str</span>]<span class="op">=</span><span class="va">None</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[Site]:</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Load sites from a GeoJSON file.</em></p>
+<p>Args: path: Path to GeoJSON file source_crs: Override source CRS (auto-detected from file if present)</p>
+<p>Returns: List of Site objects</p>
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+<hr>
+<p><a href="https://github.com/aliceheiman/gee-polygons/blob/main/gee_polygons/site.py#L277" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="sites_from_geodataframe" class="level3">
+<h3 class="anchored" data-anchor-id="sites_from_geodataframe">sites_from_geodataframe</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sites_from_geodataframe(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    gdf:gpd.GeoDataFrame, geometry_col:<span class="bu">str</span><span class="op">=</span><span class="st">'geometry'</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>[Site]:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Create Sites from a GeoDataFrame.</em></p>
+<p>This is the recommended way to work with filtered/sorted site data: 1. Load your GeoJSON into a GeoDataFrame 2. Filter and sort using pandas/geopandas operations 3. Convert to Sites for GEE analysis</p>
+<p>Args: gdf: A GeoDataFrame with polygon geometries geometry_col: Name of the geometry column (default ‘geometry’)</p>
+<p>Returns: List of Site objects</p>
+<p>Example: &gt;&gt;&gt; gdf = gpd.read_file(‘sites.geojson’) &gt;&gt;&gt; # Filter for large sites that started after 2015 &gt;&gt;&gt; filtered = gdf[(gdf[‘area_ha’] &gt; 10) &amp; (gdf[‘start_year’] &gt; 2015)] &gt;&gt;&gt; # Sort by area descending &gt;&gt;&gt; filtered = filtered.sort_values(‘area_ha’, ascending=False) &gt;&gt;&gt; # Convert to Sites &gt;&gt;&gt; sites = sites_from_geodataframe(filtered)</p>
+</section>
+</section>
+<section id="example-usage" class="level2">
+<h2 class="anchored" data-anchor-id="example-usage">Example Usage</h2>
+<p>Let’s load some restoration sites and explore a single site.</p>
+<div id="94514115" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize Earth Engine (uncomment when running)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ee.Authenticate()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ee.Initialize(project<span class="op">=</span><span class="st">"hs-brazilreforestation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+</div>
+<div id="7c42a460" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load sites from GeoJSON</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sites <span class="op">=</span> load_sites(<span class="st">'../data/restoration_sites_subset.geojson'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Loaded </span><span class="sc">{</span><span class="bu">len</span>(sites)<span class="sc">}</span><span class="ss"> sites"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loaded 10 sites</code></pre>
+</div>
+</div>
+<div id="df93de49" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Explore a single site</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>site <span class="op">=</span> sites[<span class="dv">8</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(site)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Start year: </span><span class="sc">{</span>site<span class="sc">.</span>start_year<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Area: </span><span class="sc">{</span>site<span class="sc">.</span>area_ha<span class="sc">:.2f}</span><span class="ss"> ha"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Years for analysis: </span><span class="sc">{</span>site<span class="sc">.</span>years(end_year<span class="op">=</span><span class="dv">2024</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Site(id=9368, start_year=2012)
+Start year: 2012
+Area: 13.19 ha
+Years for analysis: [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]</code></pre>
+</div>
+</div>
+<div id="216e5bb2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>site.geometry</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-display">
+<div><style>:root {
+  --font-color-primary: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --font-color-secondary: var(--jp-content-font-color2, rgba(0, 0, 0, 0.7));
+  --font-color-accent: rgba(123, 31, 162, 1);
+  --border-color: var(--jp-border-color2, #e0e0e0);
+  --background-color: var(--jp-layout-color0, white);
+  --background-color-row-even: var(--jp-layout-color1, white);
+  --background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --font-color-primary: rgba(255, 255, 255, 1);
+  --font-color-secondary: rgba(255, 255, 255, 0.7);
+  --font-color-accent: rgb(173, 132, 190);
+  --border-color: #2e2e2e;
+  --background-color: #111111;
+  --background-color-row-even: #111111;
+  --background-color-row-odd: #313131;
+}
+
+.eerepr {
+  padding: 1em;
+  line-height: 1.5em;
+  min-width: 300px;
+  max-width: 1200px;
+  overflow-y: scroll;
+  max-height: 600px;
+  border: 1px solid var(--border-color);
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.eerepr li {
+  list-style-type: none;
+  margin: 0;
+}
+
+.eerepr ul {
+  padding-left: 1.5em !important;
+  margin: 0;
+}
+
+.eerepr > ul {
+  padding-left: 0 !important;
+}
+
+.eerepr summary {
+  color: var(--font-color-secondary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.eerepr summary:hover {
+  color: var(--font-color-primary);
+  background-color: var(--background-color-row-odd)
+}
+
+.ee-k {
+  color: var(--font-color-accent);
+  margin-right: 6px;
+}
+
+.ee-v {
+  color: var(--font-color-primary);
+}
+
+.eerepr details > summary::before {
+  content: '▼';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s;
+  transform: rotate(-90deg);
+}
+
+.eerepr details[open] > summary::before {
+  transform: rotate(0deg);
+}
+
+.eerepr details summary::-webkit-details-marker {
+  display:none;
+}
+
+.eerepr details summary {
+  list-style-type: none;
+}
+</style><div class="eerepr"><ul><li><details><summary>Polygon (188 vertices)</summary><ul><li><span class="ee-k">type:</span><span class="ee-v">Polygon</span></li><li><details><summary>coordinates: List (6 elements)</summary><ul><li><details><summary>0: List (188 elements)</summary><ul><li><details><summary>0: [-42.275210643251626, -22.514167030511306]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275210643251626</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.514167030511306</span></li></ul></details></li><li><details><summary>1: [-42.27548970699436, -22.514059697226372]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27548970699436</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.514059697226372</span></li></ul></details></li><li><details><summary>2: [-42.27559704330654, -22.51410262937128]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27559704330654</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51410262937128</span></li></ul></details></li><li><details><summary>3: [-42.27574730115466, -22.51408116097226]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27574730115466</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51408116097226</span></li></ul></details></li><li><details><summary>4: [-42.275639975610645, -22.51388796269542]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275639975610645</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51388796269542</span></li></ul></details></li><li><details><summary>5: [-42.27582311225542, -22.513780802946762]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27582311225542</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513780802946762</span></li></ul></details></li><li><details><summary>6: [-42.27598343758595, -22.513651834578887]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27598343758595</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513651834578887</span></li></ul></details></li><li><details><summary>7: [-42.275983436256546, -22.51358743955051]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275983436256546</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51358743955051</span></li></ul></details></li><li><details><summary>8: [-42.27594050620802, -22.513587434135154]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27594050620802</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513587434135154</span></li></ul></details></li><li><details><summary>9: [-42.2758546361049, -22.513501574231505]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2758546361049</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513501574231505</span></li></ul></details></li><li><details><summary>10: [-42.27570437568856, -22.513480103416555]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27570437568856</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513480103416555</span></li></ul></details></li><li><details><summary>11: [-42.275639969743075, -22.51352303657724]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275639969743075</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51352303657724</span></li></ul></details></li><li><details><summary>12: [-42.27585463344533, -22.513308378347354]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27585463344533</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513308378347354</span></li></ul></details></li><li><details><summary>13: [-42.27583317240558, -22.513179576211694]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27583317240558</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513179576211694</span></li></ul></details></li><li><details><summary>14: [-42.27619809680631, -22.51305077590233]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27619809680631</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51305077590233</span></li></ul></details></li><li><details><summary>15: [-42.27604783190905, -22.512921978241284]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27604783190905</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512921978241284</span></li></ul></details></li><li><details><summary>16: [-42.276112229217915, -22.51281464971927]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276112229217915</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51281464971927</span></li></ul></details></li><li><details><summary>17: [-42.27621956010725, -22.512599989481448]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27621956010725</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512599989481448</span></li></ul></details></li><li><details><summary>18: [-42.27619810087997, -22.512449720886305]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27619810087997</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512449720886305</span></li></ul></details></li><li><details><summary>19: [-42.276262496690066, -22.51212772079941]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276262496690066</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51212772079941</span></li></ul></details></li><li><details><summary>20: [-42.276262492090886, -22.51208479130618]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276262492090886</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51208479130618</span></li></ul></details></li><li><details><summary>21: [-42.27604783088025, -22.51208479698881]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27604783088025</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51208479698881</span></li></ul></details></li><li><details><summary>22: [-42.275940502487025, -22.512063330994096]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275940502487025</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512063330994096</span></li></ul></details></li><li><details><summary>23: [-42.27596197143439, -22.51199892745188]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27596197143439</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51199892745188</span></li></ul></details></li><li><details><summary>24: [-42.27602637039906, -22.51187013424813]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27602637039906</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51187013424813</span></li></ul></details></li><li><details><summary>25: [-42.276133700425, -22.511805730543585]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276133700425</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511805730543585</span></li></ul></details></li><li><details><summary>26: [-42.27617663266103, -22.5117198644323]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27617663266103</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5117198644323</span></li></ul></details></li><li><details><summary>27: [-42.27604783431356, -22.51148373383522]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27604783431356</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51148373383522</span></li></ul></details></li><li><details><summary>28: [-42.27604783478149, -22.51141933882142]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27604783478149</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51141933882142</span></li></ul></details></li><li><details><summary>29: [-42.275618504095036, -22.511333471593534]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275618504095036</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511333471593534</span></li></ul></details></li><li><details><summary>30: [-42.27555410249263, -22.511269069644836]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27555410249263</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511269069644836</span></li></ul></details></li><li><details><summary>31: [-42.27600489988596, -22.51137640398435]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27600489988596</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51137640398435</span></li></ul></details></li><li><details><summary>32: [-42.27606929687545, -22.511333471328502]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27606929687545</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511333471328502</span></li></ul></details></li><li><details><summary>33: [-42.276112226499336, -22.51118320924917]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276112226499336</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51118320924917</span></li></ul></details></li><li><details><summary>34: [-42.276176631008966, -22.511161741375275]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276176631008966</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511161741375275</span></li></ul></details></li><li><details><summary>35: [-42.27619810101202, -22.511161743655087]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27619810101202</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511161743655087</span></li></ul></details></li><li><details><summary>36: [-42.276305431000665, -22.511591067823602]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276305431000665</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511591067823602</span></li></ul></details></li><li><details><summary>37: [-42.27652009695992, -22.51163400116744]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27652009695992</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51163400116744</span></li></ul></details></li><li><details><summary>38: [-42.27662742342832, -22.51159107168011]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27662742342832</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51159107168011</span></li></ul></details></li><li><details><summary>39: [-42.27671328827313, -22.511634000707772]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27671328827313</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511634000707772</span></li></ul></details></li><li><details><summary>40: [-42.276691828239706, -22.511784264295155]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276691828239706</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511784264295155</span></li></ul></details></li><li><details><summary>41: [-42.27649862381084, -22.51202039075548]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27649862381084</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51202039075548</span></li></ul></details></li><li><details><summary>42: [-42.27652009656693, -22.512084788988204]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27652009656693</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512084788988204</span></li></ul></details></li><li><details><summary>43: [-42.276713288755836, -22.51199892883776]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276713288755836</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51199892883776</span></li></ul></details></li><li><details><summary>44: [-42.27658448883268, -22.512213595420942]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27658448883268</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512213595420942</span></li></ul></details></li><li><details><summary>45: [-42.27669182119072, -22.51227799320309]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27669182119072</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51227799320309</span></li></ul></details></li><li><details><summary>46: [-42.2767562179283, -22.512599986592416]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2767562179283</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512599986592416</span></li></ul></details></li><li><details><summary>47: [-42.27654156081949, -22.5127717151337]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27654156081949</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5127717151337</span></li></ul></details></li><li><details><summary>48: [-42.27654155813464, -22.512728783863228]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27654155813464</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512728783863228</span></li></ul></details></li><li><details><summary>49: [-42.2764986226948, -22.512685850011305]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2764986226948</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512685850011305</span></li></ul></details></li><li><details><summary>50: [-42.27636982792191, -22.512707321409327]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27636982792191</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512707321409327</span></li></ul></details></li><li><details><summary>51: [-42.27628396516165, -22.512857578162468]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27628396516165</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512857578162468</span></li></ul></details></li><li><details><summary>52: [-42.27633245250902, -22.513051535080365]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27633245250902</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513051535080365</span></li></ul></details></li><li><details><summary>53: [-42.27639129690994, -22.51328691229198]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27639129690994</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51328691229198</span></li></ul></details></li><li><details><summary>54: [-42.27679915263887, -22.513308369791204]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27679915263887</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513308369791204</span></li></ul></details></li><li><details><summary>55: [-42.27697088673059, -22.513523038714375]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27697088673059</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513523038714375</span></li></ul></details></li><li><details><summary>56: [-42.277443143756464, -22.51294344740214]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277443143756464</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51294344740214</span></li></ul></details></li><li><details><summary>57: [-42.2778510120501, -22.51285757783742]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2778510120501</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51285757783742</span></li></ul></details></li><li><details><summary>58: [-42.278194462292795, -22.51249265225013]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.278194462292795</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51249265225013</span></li></ul></details></li><li><details><summary>59: [-42.27828033273685, -22.51234238448175]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27828033273685</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51234238448175</span></li></ul></details></li><li><details><summary>60: [-42.27821593162581, -22.512192122742313]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27821593162581</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512192122742313</span></li></ul></details></li><li><details><summary>61: [-42.27770074145299, -22.512599982336017]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27770074145299</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512599982336017</span></li></ul></details></li><li><details><summary>62: [-42.27731434627471, -22.512449717483978]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27731434627471</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512449717483978</span></li></ul></details></li><li><details><summary>63: [-42.27722848058384, -22.51255705438234]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27722848058384</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51255705438234</span></li></ul></details></li><li><details><summary>64: [-42.27714261426535, -22.51244971966045]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27714261426535</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51244971966045</span></li></ul></details></li><li><details><summary>65: [-42.27727141057187, -22.51225652626703]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27727141057187</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51225652626703</span></li></ul></details></li><li><details><summary>66: [-42.2774646146195, -22.512320922064912]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2774646146195</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512320922064912</span></li></ul></details></li><li><details><summary>67: [-42.27752900961183, -22.512213591913657]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27752900961183</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512213591913657</span></li></ul></details></li><li><details><summary>68: [-42.27744314399804, -22.511934526938692]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27744314399804</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511934526938692</span></li></ul></details></li><li><details><summary>69: [-42.27744314844112, -22.511676934988632]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27744314844112</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511676934988632</span></li></ul></details></li><li><details><summary>70: [-42.27774367755064, -22.511784260056544]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27774367755064</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511784260056544</span></li></ul></details></li><li><details><summary>71: [-42.27780807666234, -22.511634000362754]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27780807666234</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511634000362754</span></li></ul></details></li><li><details><summary>72: [-42.27770073802748, -22.51146226874756]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27770073802748</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51146226874756</span></li></ul></details></li><li><details><summary>73: [-42.277593411358396, -22.511354942292726]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277593411358396</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511354942292726</span></li></ul></details></li><li><details><summary>74: [-42.27767927651908, -22.511161744377983]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27767927651908</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511161744377983</span></li></ul></details></li><li><details><summary>75: [-42.27750754562423, -22.5109256107394]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27750754562423</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5109256107394</span></li></ul></details></li><li><details><summary>76: [-42.2779154010885, -22.51105441016614]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2779154010885</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51105441016614</span></li></ul></details></li><li><details><summary>77: [-42.27802273647532, -22.51101147982171]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27802273647532</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51101147982171</span></li></ul></details></li><li><details><summary>78: [-42.278022737347634, -22.510839749339123]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.278022737347634</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510839749339123</span></li></ul></details></li><li><details><summary>79: [-42.27789393411594, -22.510710946296207]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27789393411594</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510710946296207</span></li></ul></details></li><li><details><summary>80: [-42.27825886382392, -22.51071095075074]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27825886382392</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51071095075074</span></li></ul></details></li><li><details><summary>81: [-42.278344730359144, -22.51017428949828]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.278344730359144</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51017428949828</span></li></ul></details></li><li><details><summary>82: [-42.2781515370107, -22.510045490099582]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2781515370107</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510045490099582</span></li></ul></details></li><li><details><summary>83: [-42.27797980234042, -22.510088425546165]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27797980234042</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510088425546165</span></li></ul></details></li><li><details><summary>84: [-42.277765136842696, -22.50998109019282]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277765136842696</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50998109019282</span></li></ul></details></li><li><details><summary>85: [-42.27767927029407, -22.509873764850852]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27767927029407</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509873764850852</span></li></ul></details></li><li><details><summary>86: [-42.27748607926547, -22.509809361663283]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27748607926547</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509809361663283</span></li></ul></details></li><li><details><summary>87: [-42.27737874353611, -22.509787895725175]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27737874353611</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509787895725175</span></li></ul></details></li><li><details><summary>88: [-42.27714261805961, -22.509916693108416]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27714261805961</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509916693108416</span></li></ul></details></li><li><details><summary>89: [-42.27705675511984, -22.509787893787045]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27705675511984</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509787893787045</span></li></ul></details></li><li><details><summary>90: [-42.2770567491406, -22.509530301666206]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2770567491406</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509530301666206</span></li></ul></details></li><li><details><summary>91: [-42.2769923543574, -22.509487366038115]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2769923543574</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509487366038115</span></li></ul></details></li><li><details><summary>92: [-42.277030166315235, -22.509261044189607]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277030166315235</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509261044189607</span></li></ul></details></li><li><details><summary>93: [-42.27697228974889, -22.50924001483783]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27697228974889</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50924001483783</span></li></ul></details></li><li><details><summary>94: [-42.27699234943114, -22.50907950643288]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27699234943114</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50907950643288</span></li></ul></details></li><li><details><summary>95: [-42.27714262108001, -22.50912244149436]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27714262108001</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50912244149436</span></li></ul></details></li><li><details><summary>96: [-42.27718555229054, -22.509337098261685]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27718555229054</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509337098261685</span></li></ul></details></li><li><details><summary>97: [-42.27731434960612, -22.50935856626414]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27731434960612</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50935856626414</span></li></ul></details></li><li><details><summary>98: [-42.27752901408932, -22.50929417072681]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27752901408932</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50929417072681</span></li></ul></details></li><li><details><summary>99: [-42.277722205601975, -22.5093585647902]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277722205601975</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5093585647902</span></li></ul></details></li><li><details><summary>100: [-42.277808072673174, -22.509294167722814]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277808072673174</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509294167722814</span></li></ul></details></li><li><details><summary>101: [-42.27778660759786, -22.509100969628008]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27778660759786</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509100969628008</span></li></ul></details></li><li><details><summary>102: [-42.2776792731788, -22.509058038318134]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2776792731788</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509058038318134</span></li></ul></details></li><li><details><summary>103: [-42.27761487384549, -22.508907777400882]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27761487384549</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508907777400882</span></li></ul></details></li><li><details><summary>104: [-42.27770074208186, -22.50890777458708]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27770074208186</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50890777458708</span></li></ul></details></li><li><details><summary>105: [-42.277765137292974, -22.50901510684431]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277765137292974</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50901510684431</span></li></ul></details></li><li><details><summary>106: [-42.27782953489378, -22.509036577479606]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27782953489378</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509036577479606</span></li></ul></details></li><li><details><summary>107: [-42.27800126823569, -22.508993642966892]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27800126823569</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508993642966892</span></li></ul></details></li><li><details><summary>108: [-42.278022733860006, -22.508950704595716]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.278022733860006</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508950704595716</span></li></ul></details></li><li><details><summary>109: [-42.27793686875534, -22.508843372219854]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27793686875534</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508843372219854</span></li></ul></details></li><li><details><summary>110: [-42.277679278144674, -22.50871457560443]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277679278144674</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50871457560443</span></li></ul></details></li><li><details><summary>111: [-42.277507541318464, -22.508778975367882]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277507541318464</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508778975367882</span></li></ul></details></li><li><details><summary>112: [-42.2774860768839, -22.508886308772574]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2774860768839</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508886308772574</span></li></ul></details></li><li><details><summary>113: [-42.27737874513851, -22.50899364306389]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27737874513851</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50899364306389</span></li></ul></details></li><li><details><summary>114: [-42.277261064146934, -22.509002726483807]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277261064146934</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509002726483807</span></li></ul></details></li><li><details><summary>115: [-42.27711958846335, -22.509048354712522]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27711958846335</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509048354712522</span></li></ul></details></li><li><details><summary>116: [-42.276949418787, -22.508929237499558]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276949418787</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508929237499558</span></li></ul></details></li><li><details><summary>117: [-42.27690648714852, -22.50865017569264]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27690648714852</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50865017569264</span></li></ul></details></li><li><details><summary>118: [-42.276648887302535, -22.508521379177477]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276648887302535</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508521379177477</span></li></ul></details></li><li><details><summary>119: [-42.27606929964192, -22.508285252368754]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27606929964192</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508285252368754</span></li></ul></details></li><li><details><summary>120: [-42.275854634199455, -22.508349655042135]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275854634199455</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508349655042135</span></li></ul></details></li><li><details><summary>121: [-42.27583316751474, -22.50847845280262]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27583316751474</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50847845280262</span></li></ul></details></li><li><details><summary>122: [-42.275597040167234, -22.508414051157605]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275597040167234</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508414051157605</span></li></ul></details></li><li><details><summary>123: [-42.27557557641866, -22.50871458100443]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27557557641866</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50871458100443</span></li></ul></details></li><li><details><summary>124: [-42.27572583317582, -22.508800447392296]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27572583317582</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.508800447392296</span></li></ul></details></li><li><details><summary>125: [-42.275940497193176, -22.509186833633283]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275940497193176</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509186833633283</span></li></ul></details></li><li><details><summary>126: [-42.27632690052043, -22.50927270516431]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27632690052043</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50927270516431</span></li></ul></details></li><li><details><summary>127: [-42.27638079533135, -22.509276453348317]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27638079533135</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509276453348317</span></li></ul></details></li><li><details><summary>128: [-42.27639129648531, -22.509444432956133]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27639129648531</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509444432956133</span></li></ul></details></li><li><details><summary>129: [-42.276369824702265, -22.50946589721381]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276369824702265</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50946589721381</span></li></ul></details></li><li><details><summary>130: [-42.276305433830146, -22.509830827057467]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276305433830146</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509830827057467</span></li></ul></details></li><li><details><summary>131: [-42.2763054271484, -22.50980936042605]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2763054271484</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50980936042605</span></li></ul></details></li><li><details><summary>132: [-42.276069296649105, -22.510109888179386]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276069296649105</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510109888179386</span></li></ul></details></li><li><details><summary>133: [-42.276069301626706, -22.51021722354472]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276069301626706</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51021722354472</span></li></ul></details></li><li><details><summary>134: [-42.27572583911744, -22.5101742879929]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27572583911744</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5101742879929</span></li></ul></details></li><li><details><summary>135: [-42.2757037865831, -22.510121799704176]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2757037865831</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510121799704176</span></li></ul></details></li><li><details><summary>136: [-42.27509815906286, -22.509659290627898]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27509815906286</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509659290627898</span></li></ul></details></li><li><details><summary>137: [-42.27503891820503, -22.50972349329539]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27503891820503</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50972349329539</span></li></ul></details></li><li><details><summary>138: [-42.275021733614885, -22.509796523902565]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275021733614885</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509796523902565</span></li></ul></details></li><li><details><summary>139: [-42.2749530451381, -22.51008841966306]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2749530451381</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51008841966306</span></li></ul></details></li><li><details><summary>140: [-42.27501782723765, -22.510174793914544]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27501782723765</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510174793914544</span></li></ul></details></li><li><details><summary>141: [-42.27508185011239, -22.510260155128893]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27508185011239</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510260155128893</span></li></ul></details></li><li><details><summary>142: [-42.275139090883386, -22.510260153826845]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275139090883386</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510260153826845</span></li></ul></details></li><li><details><summary>143: [-42.27514624916511, -22.510260152249852]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27514624916511</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510260152249852</span></li></ul></details></li><li><details><summary>144: [-42.2752321158447, -22.510346022230422]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2752321158447</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510346022230422</span></li></ul></details></li><li><details><summary>145: [-42.27536091306816, -22.51049628365846]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27536091306816</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51049628365846</span></li></ul></details></li><li><details><summary>146: [-42.27532020600598, -22.51063197062635]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27532020600598</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51063197062635</span></li></ul></details></li><li><details><summary>147: [-42.27529651304267, -22.510710948027214]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27529651304267</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510710948027214</span></li></ul></details></li><li><details><summary>148: [-42.27527950612079, -22.510889506122737]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27527950612079</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510889506122737</span></li></ul></details></li><li><details><summary>149: [-42.27518917603976, -22.510968546005387]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27518917603976</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.510968546005387</span></li></ul></details></li><li><details><summary>150: [-42.27521963799877, -22.51105992853934]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27521963799877</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51105992853934</span></li></ul></details></li><li><details><summary>151: [-42.275253578575516, -22.51116173988567]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275253578575516</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51116173988567</span></li></ul></details></li><li><details><summary>152: [-42.274695454372996, -22.51150520692635]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274695454372996</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51150520692635</span></li></ul></details></li><li><details><summary>153: [-42.27465172345594, -22.511643684951327]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27465172345594</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511643684951327</span></li></ul></details></li><li><details><summary>154: [-42.27456665340917, -22.511913055650734]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27456665340917</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511913055650734</span></li></ul></details></li><li><details><summary>155: [-42.274588122243706, -22.511977457612172]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274588122243706</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511977457612172</span></li></ul></details></li><li><details><summary>156: [-42.274631049466954, -22.511998926182862]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274631049466954</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511998926182862</span></li></ul></details></li><li><details><summary>157: [-42.27480278743671, -22.511891592470047]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27480278743671</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511891592470047</span></li></ul></details></li><li><details><summary>158: [-42.2749101183695, -22.51202039533575]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2749101183695</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51202039533575</span></li></ul></details></li><li><details><summary>159: [-42.27489478174481, -22.51204084300142]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27489478174481</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51204084300142</span></li></ul></details></li><li><details><summary>160: [-42.27478132253972, -22.512192121003018]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27478132253972</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512192121003018</span></li></ul></details></li><li><details><summary>161: [-42.27478132200278, -22.51222008313133]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27478132200278</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51222008313133</span></li></ul></details></li><li><details><summary>162: [-42.27478537906706, -22.512208350267443]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27478537906706</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512208350267443</span></li></ul></details></li><li><details><summary>163: [-42.274792134639455, -22.51223537247311]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274792134639455</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51223537247311</span></li></ul></details></li><li><details><summary>164: [-42.274796023960675, -22.512231349216602]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274796023960675</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512231349216602</span></li></ul></details></li><li><details><summary>165: [-42.274781322133435, -22.512250388612784]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274781322133435</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512250388612784</span></li></ul></details></li><li><details><summary>166: [-42.27478132124345, -22.512298477660472]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27478132124345</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512298477660472</span></li></ul></details></li><li><details><summary>167: [-42.274781316903095, -22.512739705603746]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274781316903095</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.512739705603746</span></li></ul></details></li><li><details><summary>168: [-42.27480278862771, -22.51294344256925]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27480278862771</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51294344256925</span></li></ul></details></li><li><details><summary>169: [-42.27469545813433, -22.513007844342997]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27469545813433</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513007844342997</span></li></ul></details></li><li><details><summary>170: [-42.27460958587823, -22.513136645115935]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27460958587823</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513136645115935</span></li></ul></details></li><li><details><summary>171: [-42.274588119620184, -22.513179572933268]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274588119620184</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513179572933268</span></li></ul></details></li><li><details><summary>172: [-42.27460958324118, -22.51322250651747]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27460958324118</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51322250651747</span></li></ul></details></li><li><details><summary>173: [-42.274759856672944, -22.51335130468111]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274759856672944</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51335130468111</span></li></ul></details></li><li><details><summary>174: [-42.27476801791958, -22.513359466751375]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27476801791958</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513359466751375</span></li></ul></details></li><li><details><summary>175: [-42.274781323699514, -22.513372771814254]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274781323699514</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513372771814254</span></li></ul></details></li><li><details><summary>176: [-42.274738383409606, -22.513501566660718]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274738383409606</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513501566660718</span></li></ul></details></li><li><details><summary>177: [-42.27473838371716, -22.513630368318474]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27473838371716</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513630368318474</span></li></ul></details></li><li><details><summary>178: [-42.274867179899275, -22.513737699105203]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.274867179899275</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513737699105203</span></li></ul></details></li><li><details><summary>179: [-42.27493158135024, -22.513737705511794]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27493158135024</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513737705511794</span></li></ul></details></li><li><details><summary>180: [-42.2751247797216, -22.51378062858033]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2751247797216</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51378062858033</span></li></ul></details></li><li><details><summary>181: [-42.275060385111374, -22.513930896851722]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275060385111374</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513930896851722</span></li></ul></details></li><li><details><summary>182: [-42.27506038597645, -22.513995292737828]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27506038597645</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513995292737828</span></li></ul></details></li><li><details><summary>183: [-42.27506037925776, -22.514038231930602]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27506037925776</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.514038231930602</span></li></ul></details></li><li><details><summary>184: [-42.27491011799394, -22.51429582561586]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27491011799394</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51429582561586</span></li></ul></details></li><li><details><summary>185: [-42.27507370965564, -22.514405669996638]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27507370965564</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.514405669996638</span></li></ul></details></li><li><details><summary>186: [-42.275275043584585, -22.51431729322403]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275275043584585</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51431729322403</span></li></ul></details></li><li><details><summary>187: [-42.275210643251626, -22.514167030511306]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275210643251626</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.514167030511306</span></li></ul></details></li></ul></details></li><li><details><summary>1: List (4 elements)</summary><ul><li><details><summary>0: [-42.275511172239035, -22.513823562640546]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275511172239035</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513823562640546</span></li></ul></details></li><li><details><summary>1: [-42.27561850275632, -22.5136303685588]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27561850275632</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.5136303685588</span></li></ul></details></li><li><details><summary>2: [-42.27570437568856, -22.513480103416555]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27570437568856</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513480103416555</span></li></ul></details></li><li><details><summary>3: [-42.275511172239035, -22.513823562640546]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275511172239035</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513823562640546</span></li></ul></details></li></ul></details></li><li><details><summary>2: List (4 elements)</summary><ul><li><details><summary>0: [-42.276885022286095, -22.511913064626548]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276885022286095</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511913064626548</span></li></ul></details></li><li><details><summary>1: [-42.277056752651134, -22.511848667586033]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.277056752651134</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511848667586033</span></li></ul></details></li><li><details><summary>2: [-42.276713288755836, -22.51199892883776]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276713288755836</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51199892883776</span></li></ul></details></li><li><details><summary>3: [-42.276885022286095, -22.511913064626548]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276885022286095</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.511913064626548</span></li></ul></details></li></ul></details></li><li><details><summary>3: List (4 elements)</summary><ul><li><details><summary>0: [-42.276970886536674, -22.509251235728623]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276970886536674</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509251235728623</span></li></ul></details></li><li><details><summary>1: [-42.27688502296862, -22.509208307867446]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27688502296862</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509208307867446</span></li></ul></details></li><li><details><summary>2: [-42.27697228974889, -22.50924001483783]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27697228974889</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.50924001483783</span></li></ul></details></li><li><details><summary>3: [-42.276970886536674, -22.509251235728623]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.276970886536674</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.509251235728623</span></li></ul></details></li></ul></details></li><li><details><summary>4: List (4 elements)</summary><ul><li><details><summary>0: [-42.275259678303726, -22.51343725784634]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275259678303726</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51343725784634</span></li></ul></details></li><li><details><summary>1: [-42.27519838810252, -22.513608878265188]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27519838810252</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513608878265188</span></li></ul></details></li><li><details><summary>2: [-42.2751247797216, -22.51378062858033]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.2751247797216</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51378062858033</span></li></ul></details></li><li><details><summary>3: [-42.275259678303726, -22.51343725784634]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275259678303726</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51343725784634</span></li></ul></details></li></ul></details></li><li><details><summary>5: List (4 elements)</summary><ul><li><details><summary>0: [-42.27527503988412, -22.513394243721432]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27527503988412</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513394243721432</span></li></ul></details></li><li><details><summary>1: [-42.27536091311331, -22.513179572966447]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27536091311331</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513179572966447</span></li></ul></details></li><li><details><summary>2: [-42.275259678303726, -22.51343725784634]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.275259678303726</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.51343725784634</span></li></ul></details></li><li><details><summary>3: [-42.27527503988412, -22.513394243721432]</summary><ul><li><span class="ee-k">0:</span><span class="ee-v">-42.27527503988412</span></li><li><span class="ee-k">1:</span><span class="ee-v">-22.513394243721432</span></li></ul></details></li></ul></details></li></ul></details></li></ul></details></li></ul></div></div>
+</div>
+</div>
+<div id="d6d1e510" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get buffered geometry for context</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>buffer_1km <span class="op">=</span> site.<span class="bu">buffer</span>(<span class="dv">1000</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Buffered geometry created"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Buffered geometry created</code></pre>
+</div>
+</div>
+</section>
+<section id="loading-sites-from-geodataframe" class="level2">
+<h2 class="anchored" data-anchor-id="loading-sites-from-geodataframe">Loading Sites from GeoDataFrame</h2>
+<p>For workflows where you need to filter or sort sites before analysis, it’s more efficient to: 1. Load the GeoJSON into a GeoDataFrame 2. Filter and sort using pandas/geopandas operations (fast, in-memory) 3. Convert only the sites you need to <a href="https://aliceheiman.github.io/gee-polygons/core.html#site"><code>Site</code></a> objects</p>
+<p>This avoids creating Earth Engine features for sites you’ll filter out anyway.</p>
+<div id="crkuz4sb0jg" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load GeoJSON into GeoDataFrame for fast filtering</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>gdf <span class="op">=</span> gpd.read_file(<span class="st">'../data/restoration_sites_subset.geojson'</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Loaded </span><span class="sc">{</span><span class="bu">len</span>(gdf)<span class="sc">}</span><span class="ss"> sites into GeoDataFrame"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"CRS: </span><span class="sc">{</span>gdf<span class="sc">.</span>crs<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>gdf.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loaded 10 sites into GeoDataFrame
+CRS: EPSG:5880</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">category</th>
+<th data-quarto-table-cell-role="th">source</th>
+<th data-quarto-table-cell-role="th">has_project</th>
+<th data-quarto-table-cell-role="th">project_name</th>
+<th data-quarto-table-cell-role="th">executing_institution</th>
+<th data-quarto-table-cell-role="th">managing_institution</th>
+<th data-quarto-table-cell-role="th">financing_institution</th>
+<th data-quarto-table-cell-role="th">main_method</th>
+<th data-quarto-table-cell-role="th">combined_method</th>
+<th data-quarto-table-cell-role="th">strategy</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">project_total_area_ha</th>
+<th data-quarto-table-cell-role="th">project_mean_site_area_ha</th>
+<th data-quarto-table-cell-role="th">project_mean_dispersion_km</th>
+<th data-quarto-table-cell-role="th">project_max_dispersion_km</th>
+<th data-quarto-table-cell-role="th">centroid_lon</th>
+<th data-quarto-table-cell-role="th">centroid_lat</th>
+<th data-quarto-table-cell-role="th">perimeter_m</th>
+<th data-quarto-table-cell-role="th">shape_complexity</th>
+<th data-quarto-table-cell-role="th">rid</th>
+<th data-quarto-table-cell-role="th">geometry</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>restauracao</td>
+<td>Aliança pela Restauração na Amazônia</td>
+<td>Sim</td>
+<td>Programa de recuperacao de areas degradadas - ...</td>
+<td>Onca Puma Mineracao</td>
+<td>nao identificado</td>
+<td>nao identificado</td>
+<td>enriquecimento</td>
+<td>controle das plantas competidoras</td>
+<td>Regeneração Natural com Manejo</td>
+<td>...</td>
+<td>86.704527</td>
+<td>28.901509</td>
+<td>2.699984e+04</td>
+<td>4.030311e+04</td>
+<td>5.322801e+06</td>
+<td>9.280290e+06</td>
+<td>2713.351189</td>
+<td>4.455536</td>
+<td>3107</td>
+<td>POLYGON Z ((5322649.663 9279737.977 0, 5322649...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>restauracao</td>
+<td>Pacto pela Restauração da Mata Atlântica</td>
+<td>Sim</td>
+<td>Mata Atlantica, das encostas as areas alagadas...</td>
+<td>SPVS</td>
+<td>nao identificado</td>
+<td>FUNBIO,MMA,KFW</td>
+<td>enriquecimento</td>
+<td>nao identificado</td>
+<td>Regeneração Natural com Manejo</td>
+<td>...</td>
+<td>651.186341</td>
+<td>10.853106</td>
+<td>6.590103e+05</td>
+<td>2.725318e+06</td>
+<td>5.525798e+06</td>
+<td>7.183378e+06</td>
+<td>3136.600149</td>
+<td>6.355574</td>
+<td>3153</td>
+<td>POLYGON Z ((5525444.601 7183290.446 0, 5525444...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>restauracao</td>
+<td>Pacto pela Restauração da Mata Atlântica</td>
+<td>Sim</td>
+<td>nao identificado</td>
+<td>nao identificado</td>
+<td>SEMIL-SP</td>
+<td>nao identificado</td>
+<td>adensamento</td>
+<td>nao identificado</td>
+<td>Regeneração Natural com Manejo</td>
+<td>...</td>
+<td>228.300262</td>
+<td>5.435721</td>
+<td>2.400005e+07</td>
+<td>4.269652e+07</td>
+<td>5.791646e+06</td>
+<td>7.431742e+06</td>
+<td>6347.796596</td>
+<td>9.286339</td>
+<td>3226</td>
+<td>POLYGON Z ((5790809.752 7431272.341 0, 5790776...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>restauracao</td>
+<td>Pacto pela Restauração da Mata Atlântica</td>
+<td>Sim</td>
+<td>nao identificado</td>
+<td>nao identificado</td>
+<td>SEMIL-SP</td>
+<td>nao identificado</td>
+<td>adensamento</td>
+<td>nao identificado</td>
+<td>Regeneração Natural com Manejo</td>
+<td>...</td>
+<td>104.184078</td>
+<td>14.883440</td>
+<td>1.902321e+07</td>
+<td>2.225268e+07</td>
+<td>5.187825e+06</td>
+<td>7.531541e+06</td>
+<td>7300.762070</td>
+<td>12.221759</td>
+<td>4210</td>
+<td>POLYGON Z ((5187930.677 7531850.711 0, 5187971...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>restauracao</td>
+<td>Pacto pela Restauração da Mata Atlântica</td>
+<td>Sim</td>
+<td>nao identificado</td>
+<td>nao identificado</td>
+<td>SEMIL-SP</td>
+<td>nao identificado</td>
+<td>plantio de mudas</td>
+<td>nao identificado</td>
+<td>Plantio em Área Total</td>
+<td>...</td>
+<td>204.103345</td>
+<td>2.685570</td>
+<td>2.713580e+07</td>
+<td>4.506196e+07</td>
+<td>5.619900e+06</td>
+<td>7.654089e+06</td>
+<td>2602.480123</td>
+<td>7.461996</td>
+<td>5461</td>
+<td>POLYGON Z ((5620178.276 7654188.507 0, 5620178...</td>
+</tr>
+</tbody>
+</table>
+
+<p>5 rows × 36 columns</p>
+</div>
+</div>
+</div>
+<div id="6a32r1l7c4l" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter for sites larger than 20 hectares</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>filtered <span class="op">=</span> gdf[gdf[<span class="st">'area_ha'</span>] <span class="op">&gt;</span> <span class="dv">20</span>].copy()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filtered to </span><span class="sc">{</span><span class="bu">len</span>(filtered)<span class="sc">}</span><span class="ss"> sites with area &gt; 10 ha"</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by area (largest first)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>filtered <span class="op">=</span> filtered.sort_values(<span class="st">'area_ha'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert filtered GeoDataFrame to Sites</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>sites <span class="op">=</span> sites_from_geodataframe(filtered)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Created </span><span class="sc">{</span><span class="bu">len</span>(sites)<span class="sc">}</span><span class="ss"> Site objects"</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the first site</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sites[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Filtered to 5 sites with area &gt; 10 ha
+Created 5 Site objects
+Site(id=3226, start_year=2021)</code></pre>
+</div>
+</div>
+<div id="bm5pmu2vm6r" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># You can also create a single Site from a specific row</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>row <span class="op">=</span> gdf.iloc[<span class="dv">0</span>]  <span class="co"># Get first row</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>single_site <span class="op">=</span> Site.from_geodataframe_row(row, source_crs<span class="op">=</span><span class="bu">str</span>(gdf.crs))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Single site: </span><span class="sc">{</span>single_site<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Single site: Site(id=3107, start_year=2016)</code></pre>
+</div>
+</div>
+</section>
+<section id="visualizing-sites" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-sites">Visualizing Sites</h2>
+<p>Now that we have a site loaded, we’d like to see it on a map. Let’s add a <code>show()</code> method using geemap’s interactive mapping.</p>
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+<hr>
+<p><a href="https://github.com/aliceheiman/gee-polygons/blob/main/gee_polygons/site.py#L315" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="site.show" class="level3">
+<h3 class="anchored" data-anchor-id="site.show">Site.show</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show(</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    zoom:<span class="bu">int</span><span class="op">=</span><span class="dv">14</span>, basemap:<span class="bu">str</span><span class="op">=</span><span class="st">'SATELLITE'</span>, color:<span class="bu">str</span><span class="op">=</span><span class="st">'blue'</span>, fill_color:<span class="bu">str</span><span class="op">=</span><span class="st">'#0000ff33'</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span>geemap.Map:</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Display the site on an interactive map.</em></p>
+<p>Args: zoom: Initial zoom level (default 14) basemap: Basemap type - ‘SATELLITE’, ‘ROADMAP’, ‘TERRAIN’, ‘HYBRID’ color: Outline color (default ‘blue’) fill_color: Fill color with alpha (default semi-transparent blue)</p>
+<p>Returns: A geemap.Map object centered on the site</p>
+<div id="3051259b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View the site on a satellite map</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>site.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+
+            <style>
+                .geemap-dark {
+                    --jp-widgets-color: white;
+                    --jp-widgets-label-color: white;
+                    --jp-ui-font-color1: white;
+                    --jp-layout-color2: #454545;
+                    background-color: #383838;
+                }
+
+                .geemap-dark .jupyter-button {
+                    --jp-layout-color3: #383838;
+                }
+
+                .geemap-colab {
+                    background-color: var(--colab-primary-surface-color, white);
+                }
+
+                .geemap-colab .jupyter-button {
+                    --jp-layout-color3: var(--colab-primary-surface-color, white);
+                }
+            </style>
+            
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"28bffc0bf2af4d99b1ec790cd26f0fb3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script type="application/vnd.jupyter.widget-state+json">
+{"state":{"1d6bfce2396744b5aa3a08f30a4b3240":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"width":"500px"}}},"version_major":2,"version_minor":0}
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/aliceheiman\.github\.io\/gee-polygons");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/aliceheiman/gee-polygons/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
